@@ -1,0 +1,201 @@
+#!/bin/sh
+
+SUDOKU="../sudoku"
+FLAGS="-s 2"
+PDIR="../puzzles1"
+
+#
+# Still not solved 02/12/12, even after dimensional analysis added.
+# Still not solved 09/24/17.
+#
+# Not solved as of 02/19/06 (needs modified tuple analysis)
+$SUDOKU $FLAGS -f $PDIR/d4.txt
+# Not solved as of 03/11/06 (needs ???)
+$SUDOKU $FLAGS -f $PDIR/d7.txt
+# Not solved as of 03/19/06 (needs ???)
+$SUDOKU $FLAGS -f $PDIR/u5s6.txt
+# Not solved as of 03/31/06 (needs ???)
+$SUDOKU $FLAGS -f $PDIR/d10.txt
+
+#
+# Not solved as of 02/08/08 (needs the following):
+# - some form of linear analysis (forget the name)
+#   perhaps this is (multi) dimensional analysis
+#   - 3,5,7,8 and 2,3,8 in the top row of square 3:  one of these
+#     cells must contain 8.  This should eliminate 8s from the
+#     top row of square 2.
+# - a couple instances of 2 common 2 analysis (just made up name)
+#   - this is where two cells in a (square for instance) contain
+#     two values in no other cells.  For instance, 3,4,5,6,8,9 and
+#     and 2,3,6,7,9 are two cells in a square.  Values 6 and 9
+#     appear in those two cells only.  This implies that all other
+#     values in the cells may be eliminated:  The cells become
+#     6,9 and 6,9.  Since those two cells must represent 6 and 9,
+#     no other values could appear in those cells.
+#
+$SUDOKU $FLAGS -f $PDIR/l4-1.txt
+
+# Not solved as of 02/08/08 (needs ???):
+$SUDOKU $FLAGS -f $PDIR/l4-2.txt
+
+#
+# Not solved as of 02/08/08 (needs the following):
+# - could benefit from dimensional analysis.  The two fives in square
+#   7 are also in column 3.  This should eliminate the 5 in row 4,
+#   column 3.
+# - serpentine analysis???  (unconfirmed report)
+# - These analyses may not be sufficient to solve the puzzle.
+#
+$SUDOKU $FLAGS -f $PDIR/l4-3.txt
+
+# Solver cannot solve as of 02/12/12.
+# Allegedly solved by standard methods by hand, 05/19/08.
+# Reexamined 02/19/12.  Not currently aware of how this can be solved
+# with standard techniques.
+# Note that the puzzle has a serpentine in the third row, but this
+# knowledge cannot be used to improve the solution.
+$SUDOKU $FLAGS -f $PDIR/l4-4.txt
+
+# Solver cannot fully solve at this time.
+# Solver cannot solve as of 02/12/12.
+$SUDOKU $FLAGS -f $PDIR/l4-5.txt
+
+# Solver cannot fully solve at this time, 12/30/11.
+#
+# Contains excellent examples of modified tuple analysis in action.
+#
+# Note:  Cell 4,8 contains a "1" that cannot be an acceptable value
+# in practice.  A complicated dependency analysis in three dimensions
+# is necessary to detect this.  Devising a test is complex.
+# A "try this value and look for contradictions" test may be helpful
+# in this case.  Sort of a single level recursive descent test based
+# on trying one value.
+$SUDOKU $FLAGS -f $PDIR/l4-6.txt
+
+# Solver cannot fully solve at this time, 01/07/12.
+$SUDOKU $FLAGS -f $PDIR/l4-7.txt
+
+# Solver cannot fully solve at this time, 01/14/12.
+# Note:  dimensional analysis is not working in all cases.
+# 369 69 in top row, columns 8 and 9 represent the only 9s in the
+# square dimension.  Therefore, the 9 in the top row of column 1
+# should be cleared as a result.
+# Likewise, 9s in row 7 should be cleared by 9s in lower central
+# square.
+# 3s in column 8 appear to be clearing correctly, however.
+$SUDOKU $FLAGS -f $PDIR/l4-8.txt
+
+# Solver cannot fully solve at this time, 01/21/12.
+# Note:  Need dimensional analysis to clear lower 9 in first column.
+$SUDOKU $FLAGS -f $PDIR/l4-9.txt
+
+# Solver cannot fully solve at this time, 01/28/12.
+$SUDOKU $FLAGS -f $PDIR/l4-10.txt
+
+# Solver cannot fully solve at this time, 02/05/12.
+$SUDOKU $FLAGS -f $PDIR/l4-11.txt
+
+# Solver cannot fully solve at this time, 02/12/12.
+# Note:  Puzzle contains a serpentine in the top row
+$SUDOKU $FLAGS -f $PDIR/l4-12.txt
+
+# Solver cannot fully solve at this time, 02/26/12.
+# Note:  Puzzle contains 259 259 259 in sixth square
+$SUDOKU $FLAGS -f $PDIR/l4-13.txt
+
+# Solver cannot fully solve at this time, 02/26/12.
+$SUDOKU $FLAGS -f $PDIR/l4-14.txt
+
+# Solver cannot fully solve at this time, 09/23/17.
+$SUDOKU $FLAGS -f $PDIR/l4-15.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+$SUDOKU $FLAGS -f $PDIR/l4-16.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+$SUDOKU $FLAGS -f $PDIR/l4-17.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+$SUDOKU $FLAGS -f $PDIR/l4-18.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+$SUDOKU $FLAGS -f $PDIR/l4-19.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-10.txt
+
+# Solver cannot fully solve at this time, 09/24/17.
+# Fixme:  Look at this one
+# Not seeing any missing algorithms, 09/30/17
+$SUDOKU $FLAGS -f $PDIR/l3-13.txt
+
+# Solver cannot fully solve at this time, 09/29/17.
+$SUDOKU $FLAGS -f $PDIR/l4-20.txt
+
+# Solver cannot fully solve at this time, 09/29/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-21.txt
+
+# Solver cannot fully solve at this time, 09/29/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-22.txt
+
+# Solver cannot fully solve at this time, 09/29/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-24.txt
+
+# Solver cannot fully solve at this time, 09/29/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-25.txt
+
+# Solver cannot fully solve at this time, 09/30/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-29.txt
+
+# Solver cannot fully solve at this time, 09/30/17.
+# Fixme:  Look at this one
+$SUDOKU $FLAGS -f $PDIR/l3-31.txt
+
+# Solver cannot fully solve at this time, 10/01/17.
+$SUDOKU $FLAGS -f $PDIR/l4-21.txt
+
+# Solver cannot fully solve at this time, 10/01/17.
+$SUDOKU $FLAGS -f $PDIR/l4-22.txt
+
+# Solver cannot fully solve at this time, 11/19/17.
+$SUDOKU $FLAGS -f $PDIR/l4-23.txt
+
+# Solver cannot fully solve at this time, 11/19/17.
+# Fixme:  Look at this one
+# In column 8, has a serpentine? 126 268 18.
+# Is this sufficient to help solve the puzzle?
+$SUDOKU $FLAGS -f $PDIR/l4-24.txt
+
+# Solver cannot fully solve at this time, 11/19/17.
+$SUDOKU $FLAGS -f $PDIR/l4-25.txt
+
+# Solver cannot fully solve at this time, 11/19/17.
+$SUDOKU $FLAGS -f $PDIR/l4-26.txt
+
+# Solver cannot fully solve at this time, 02/18/18.
+$SUDOKU $FLAGS -f $PDIR/l4-27.txt
+
+# Solver cannot fully solve at this time, 02/18/18.
+$SUDOKU $FLAGS -f $PDIR/l3-39.txt
+
+# Solver cannot fully solve at this time, 02/18/18.
+$SUDOKU $FLAGS -f $PDIR/l4-28.txt
+
+# Algorithmic solver cannot fully solve at this time, 03/04/18.
+$SUDOKU $FLAGS -f $PDIR/l3-44.txt
+
+# Algorithmic solver cannot fully solve at this time, 03/04/18.
+$SUDOKU $FLAGS -f $PDIR/l4-29.txt
+
+# Algorithmic solver cannot fully solve at this time, 03/04/18.
+$SUDOKU $FLAGS -f $PDIR/l4-30.txt
+
+# Algorithmic solver cannot fully solve at this time, 04/05/18.
+$SUDOKU $FLAGS -f $PDIR/l3-45.txt
+

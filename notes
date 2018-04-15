@@ -1,0 +1,208 @@
+
+Display best with window at least 110 characters wide.
+
+
+Testing on 3.2 GHz Pentium 4, FreeBSD 8.4:
+sudoku compiled with -O0.
+
+Recursion tests with l4-18.txt, which requres backtracking:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s -D 0
+*** ./puzzles/l4-18.txt not solved, sane!  Solution failed!
+    Iterations:  5.  Changes:  Rows 159, cols 119, squares 99, tot 377
+        dfs:  cells 0, values 0
+0.004u 0.000s 0:00.00 0.0%      0+0k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s -D 1
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 1, values 4
+0.009u 0.000s 0:00.00 0.0%      0+0k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s -D 2
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 43, values 114
+0.135u 0.000s 0:00.13 100.0%    33+1163k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s -D 3
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 76, values 196
+2.841u 0.000s 0:02.84 100.0%    31+1118k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+41.139u 0.000s 0:41.24 99.7%    31+1118k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+
+Recursion tests with l4-27.test3, which requres lots of backtracking:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test3 -r -s -D 0
+*** ./puzzles/l4-27.test3 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 88, cols 83, squares 36, tot 207
+        dfs:  cells 0, values 0
+0.000u 0.001s 0:00.00 0.0%      0+0k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test3 -r -s -D 1
+*** ./puzzles/l4-27.test3 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 88, cols 83, squares 36, tot 207
+        dfs:  cells 68, values 405
+0.174u 0.000s 0:00.17 100.0%    32+1136k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test3 -r -s -D 2
+*** ./puzzles/l4-27.test3 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 88, cols 83, squares 36, tot 207
+        dfs:  cells 135, values 790
+68.195u 0.000s 1:08.19 100.0%   31+1116k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test3 -r -s -D 3
+*** ./puzzles/l4-27.test3 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 88, cols 83, squares 36, tot 207
+        dfs:  cells 201, values 1164
+25922.994u 0.000s 7:12:04.66 99.9%      31+-540k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test3 -r -s -D 4
+
+
+Recursion tests with l4-27.test2, which can be solve quickly
+  with straight recursion:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 20
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  45.  Changes:  Rows 171, cols 229, squares 102, tot 502
+        dfs:  cells 16, values 16
+0.012u 0.000s 0:00.01 100.0%    48+1680k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 15
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  40.  Changes:  Rows 173, cols 227, squares 102, tot 502
+        dfs:  cells 30, values 52
+0.119u 0.000s 0:00.11 100.0%    32+1145k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 14
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  39.  Changes:  Rows 167, cols 230, squares 108, tot 505
+        dfs:  cells 41, values 109
+1.467u 0.000s 0:01.46 100.0%    32+1139k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 13
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  36.  Changes:  Rows 174, cols 226, squares 105, tot 505
+        dfs:  cells 39, values 104
+79.229u 0.007s 1:19.24 99.9%    31+1114k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 12
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  37.  Changes:  Rows 175, cols 224, squares 106, tot 505
+        dfs:  cells 60, values 182
+431.429u 0.000s 7:11.45 99.9%   31+1115k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s3 -D 11
+>>>>>>>> recurse return success 10! 1 <<<<<<<<
+>>>>>>>> recurse return success 9! 1 <<<<<<<<
+>>>>>>>> recurse return success 8! 1 <<<<<<<<
+>>>>>>>> recurse return success 7! 1 <<<<<<<<
+>>>>>>>> recurse return success 6! 1 <<<<<<<<
+>>>>>>>> recurse return success 5! 1 <<<<<<<<
+>>>>>>>> recurse return success 4! 1 <<<<<<<<
+>>>>>>>> recurse return success 3! 1 <<<<<<<<
+>>>>>>>> recurse return success 2! 1 <<<<<<<<
+>>>>>>>> recurse return success 1! 1 <<<<<<<<
+18465.484u 0.000s 5:07:47.25 99.9%      31+1116k 1+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s2 -D 10
+>>>>>>>> recurse return success 9! 1 <<<<<<<<
+>>>>>>>> recurse return success 8! 1 <<<<<<<<
+>>>>>>>> recurse return success 7! 1 <<<<<<<<
+>>>>>>>> recurse return success 6! 1 <<<<<<<<
+>>>>>>>> recurse return success 5! 1 <<<<<<<<
+>>>>>>>> recurse return success 4! 1 <<<<<<<<
+>>>>>>>> recurse return success 3! 1 <<<<<<<<
+>>>>>>>> recurse return success 2! 1 <<<<<<<<
+>>>>>>>> recurse return success 1! 1 <<<<<<<<
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  32.  Changes:  Rows 166, cols 224, squares 117, tot 507
+        dfs:  cells 97, values 340
+9082.544u 0.000s 2:31:30.06 99.9%       31+1117k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s2 -D 9
+>>>>>>>> recurse return success 8! 1 <<<<<<<<
+>>>>>>>> recurse return success 7! 1 <<<<<<<<
+>>>>>>>> recurse return success 6! 1 <<<<<<<<
+>>>>>>>> recurse return success 5! 1 <<<<<<<<
+>>>>>>>> recurse return success 4! 1 <<<<<<<<
+>>>>>>>> recurse return success 3! 1 <<<<<<<<
+>>>>>>>> recurse return success 2! 1 <<<<<<<<
+>>>>>>>> recurse return success 1! 1 <<<<<<<<
+>>>>>> ./puzzles/l4-27.test2 solved, sane!
+    Iterations:  30.  Changes:  Rows 172, cols 217, squares 121, tot 510
+        dfs:  cells 114, values 421
+151230.462u 0.000s 42:00:43.23 99.9%    31+-20k 1+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+
+
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 0
+*** ./puzzles/l4-27.test2 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+        dfs:  cells 0, values 0
+0.001u 0.000s 0:00.00 0.0%      0+0k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 1
+*** ./puzzles/l4-27.test2 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+        dfs:  cells 67, values 382
+0.161u 0.000s 0:00.16 100.0%    33+1155k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 2
+*** ./puzzles/l4-27.test2 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+        dfs:  cells 133, values 744
+60.367u 0.000s 1:00.38 99.9%    31+1119k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 3
+time ./sudoku -f ./puzzles/l4-27.test2 -r -s -D 4
+*** ./puzzles/l4-27.test2 not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+        dfs:  cells 198, values 1095
+21912.890u 0.000s 6:05:15.87 99.9%      31+-843k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-27.test2 -r -s3 -D 4
+
+---
+
+i -O0:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s 2 -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+50.206u 0.000s 0:50.29 99.8%    31+1117k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+i -O1:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s 2 -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+37.955u 0.000s 0:38.04 99.7%    26+1122k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+i -O2:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s 2 -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+36.049u 0.000s 0:36.15 99.6%    26+1122k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+i -O3:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s 2 -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+25.971u 0.000s 0:26.08 99.5%    58+1091k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+i -O4:
+
+stevej@bsd84:~/sudoku % time ./sudoku -f ./puzzles/l4-18.txt -r -s 2 -D 4
+>>>>>> ./puzzles/l4-18.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 183, cols 157, squares 121, tot 461
+        dfs:  cells 106, values 269
+25.864u 0.000s 0:25.86 100.0%   58+1091k 0+0io 0pf+0w
+stevej@bsd84:~/sudoku %
+
+

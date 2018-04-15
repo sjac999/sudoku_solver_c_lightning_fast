@@ -1,0 +1,312 @@
+
+
+Introduction:
+
+This program is a Sudoku puzzle solver written in C.  It uses repetitive
+application of algorithms to arrive at a solution, very much as a human
+does.  Because of this approach, it is many orders of magnitude faster
+than programs that rely on brute-force guessing.
+
+The sudoku program reads the puzzle to be solved from an ASCII file, an example
+of which is below.  This is ./puzzles1/l3-5.txt.
+
+#
+# Source:
+# Date:
+# Level:
+#
+3,.,., .,2,8, .,.,1
+2,.,., 9,.,., .,4,5
+9,.,., .,.,., .,.,.
+#
+.,.,., 2,5,., 6,.,.
+.,.,6, .,.,., 3,.,.
+.,.,8, .,1,3, .,.,.
+#
+.,.,., .,.,., 4,.,9
+7,.,., .,.,9, .,.,2
+.,.,., 5,7,., .,.,.
+
+The format is a fairly accurate visual representation of a printed puzzle.
+"#" prefaces a comment line, the entirety of which is disregarded by the
+program.  Commas and spaces are separators, and must appear as shown.
+"." represents a cell with no value specified.  Integers 0-9 represent
+cells with initially specified values.
+
+Note:  Setting the window width to 110 columns works best when running 
+the sudoku program (and when reading this file).
+
+
+To compile the program:
+
+1.  cd into the sudoku source code directory
+2.  type "make"
+
+
+To obtain help from the program:
+
+stevej@bsd84:~/sudoku % ./sudoku -h
+
+usage: ./sudoku [-?hbdDfrRsV] [-d <debug flags>] [-f <filename>]
+   -b:          try breadth-first search if needed
+   -d:          set debug flags
+   -D:          maximum depth for depth-first recursion
+   -f:          specify puzzle filename
+   -?h:         print help and exit
+   -r:          try recursive descent if needed
+   -R:          use only recursive descent (unimplemented)
+   -s:          silent mode level
+   -V:          print version string and exit
+stevej@bsd84:~/sudoku %
+
+
+To run the program using the basic algorithmic solver:
+
+Here is an example of running the sudoku solver program on the l3-5.txt
+puzzle, shown above.
+
+"-f ./puzzles1/l3-5.txt" specifies the puzzle file to be solved.
+
+"-s 1" specifies the level of silence (verbocity).  "-s 0" prints more
+chatter about the algorithms solving the puzzle than most users will
+care about  "-s 1" prints the starting and ending states of the puzzle,
+followed by a summary of the solution.  In this case, the program
+determined that the puzzle was actually solved, and that the solution
+was actually sane.
+
+"|   3       |" represents a single cell of the puzzle.  It is a fully
+determined cell that contains, and can only contain, the value 3.
+
+"| 123456789 |" represents an undetermined single cell of the puzzle.
+It may ultimately contain any value in the range 0..9.  It is unknown
+at this time which one of those values it will ultimately contain.
+
+=====================================
+|   3       | 123456789 | 123456789 |
+|  2        | 123456789 | 123456789 |
+|         9 | 123456789 | 123456789 |
+=====================================
+
+The above represents a square of the puzzle, containing 3 x 3 cells.
+Three of the cells are determined, and six are not.
+
+=============
+|   3       |
+|  2        |
+|         9 |
+=============
+| 123456789 |
+| 123456789 |
+| 123456789 |
+=============
+| 123456789 |
+|       7   |
+| 123456789 |
+=============
+
+The above represents a single column of the puzzle.  It contains
+nine cells.
+
+|   3       | 123456789 | 123456789 | 123456789 |  2        |        8  | 123456789 | 123456789 | 1         |
+
+The above represents a single row of the puzzle.  It also contains
+nine cells.
+
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
+=============================================================================================================
+|   3       | 123456789 | 123456789 | 123456789 |  2        |        8  | 123456789 | 123456789 | 1         |
+|  2        | 123456789 | 123456789 |         9 | 123456789 | 123456789 | 123456789 |    4      |     5     |
+|         9 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 |  2        |     5     | 123456789 |      6    | 123456789 | 123456789 |
+| 123456789 | 123456789 |      6    | 123456789 | 123456789 | 123456789 |   3       | 123456789 | 123456789 |
+| 123456789 | 123456789 |        8  | 123456789 | 1         |   3       | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |    4      | 123456789 |         9 |
+|       7   | 123456789 | 123456789 | 123456789 | 123456789 |         9 | 123456789 | 123456789 |  2        |
+| 123456789 | 123456789 | 123456789 |     5     |       7   | 123456789 | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+=============================================================================================================
+|   3       |    4      |     5     |       7   |  2        |        8  |         9 |      6    | 1         |
+|  2        |        8  | 1         |         9 |   3       |      6    |       7   |    4      |     5     |
+|         9 |      6    |       7   | 1         |    4      |     5     |        8  |  2        |   3       |
+=============================================================================================================
+|    4      |   3       |         9 |  2        |     5     |       7   |      6    | 1         |        8  |
+| 1         |  2        |      6    |        8  |         9 |    4      |   3       |     5     |       7   |
+|     5     |       7   |        8  |      6    | 1         |   3       |  2        |         9 |    4      |
+=============================================================================================================
+|      6    |     5     |  2        |   3       |        8  | 1         |    4      |       7   |         9 |
+|       7   | 1         |   3       |    4      |      6    |         9 |     5     |        8  |  2        |
+|        8  |         9 |    4      |     5     |       7   |  2        | 1         |   3       |      6    |
+=============================================================================================================
+>>>>>> ./puzzles1/l3-5.txt solved, sane!
+    Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
+stevej@bsd84:~/sudoku %
+
+
+"-s 2" prints only the summary.  It is useful for scripting, and/or
+when you are testing modifications to the program.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
+>>>>>> ./puzzles1/l3-5.txt solved, sane!
+    Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
+stevej@bsd84:~/sudoku %
+
+
+"-s 3" prints nothing.  It is only useful for scripting, which can rely
+on the condition code returned by the program.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
+stevej@bsd84:~/sudoku %
+
+
+To run the program, intermediate use:
+
+Basic application of the program, as shown above, should solve all
+puzzles where repetitive application of the algorithms is sufficient.
+In other words, puzzles that do not require guessing.
+
+For puzzles requiring guessing, there is a breadth-first (-b) option
+that can solve all puzzles where correctly guessing only one cell is
+needed.  If the algorithms do not solve the puzzle, it makes and tests
+one guess at a time, then re-applies the algorithms.  It is effectively
+a recursive descent solver with a single level of recursion.
+
+"-b" enables the breadth-first search solver, if needed.  Breadth-first
+search is only done if the basic algorithmic solver fails to arrive at
+a solution.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2
+*** ./puzzles1/l4-1.txt not solved, sane!  Solution failed!
+    Iterations:  6.  Changes:  Rows 169, cols 139, squares 79, tot 387
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
+>>>>>> ./puzzles1/l4-1.txt solved, sane!
+    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+        bfs:  cells 2, values 3
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 |   3       | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
+| 123456789 | 1         | 123456789 | 123456789 | 123456789 | 123456789 |   3       |    4      |     5     |
+|   3       |         9 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+| 123456789 |   3       | 123456789 |         9 | 123456789 | 1         | 123456789 | 123456789 |      6    |
+|      6    | 123456789 | 123456789 |    4      |  2        |     5     | 123456789 | 123456789 |         9 |
+| 1         | 123456789 | 123456789 |       7   | 123456789 |      6    | 123456789 |  2        | 123456789 |
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 1         |        8  |
+|        8  |       7   |    4      | 123456789 | 123456789 | 123456789 | 123456789 |     5     | 123456789 |
+| 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |    4      | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+=============================================================================================================
+|  2    7   |    4      |     56 8  |   3       | 1   567   |  2    78  |  2   6  9 |      6 89 | 1     7   |
+|  2    7   | 1         |      6 8  |  2   6    |      67 9 |  2    789 |   3       |    4      |     5     |
+|   3       |         9 |     56 8  | 12  56    |    4      |  2    78  |  2   6    |      6 8  | 1     7   |
+=============================================================================================================
+|    4      |   3       |  2        |         9 |        8  | 1         |     5     |       7   |      6    |
+|      6    |        8  |       7   |    4      |  2        |     5     | 1         |   3       |         9 |
+| 1         |     5     |         9 |       7   |   3       |      6    |        8  |  2        |    4      |
+=============================================================================================================
+|     5   9 |      6    |   3       |  2  5     |     5 7 9 |  2    7 9 |    4      | 1         |        8  |
+|        8  |       7   |    4      | 1    6    | 1    6  9 |   3       |      6  9 |     5     |  2        |
+|     5   9 |  2        | 1         |        8  |     56  9 |    4      |       7   |      6  9 |   3       |
+=============================================================================================================
+*** ./puzzles1/l4-1.txt not solved, sane!  Solution failed!
+    Iterations:  6.  Changes:  Rows 169, cols 139, squares 79, tot 387
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1 -b
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 |   3       | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
+| 123456789 | 1         | 123456789 | 123456789 | 123456789 | 123456789 |   3       |    4      |     5     |
+|   3       |         9 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+| 123456789 |   3       | 123456789 |         9 | 123456789 | 1         | 123456789 | 123456789 |      6    |
+|      6    | 123456789 | 123456789 |    4      |  2        |     5     | 123456789 | 123456789 |         9 |
+| 1         | 123456789 | 123456789 |       7   | 123456789 |      6    | 123456789 |  2        | 123456789 |
+=============================================================================================================
+| 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 | 1         |        8  |
+|        8  |       7   |    4      | 123456789 | 123456789 | 123456789 | 123456789 |     5     | 123456789 |
+| 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |    4      | 123456789 | 123456789 | 123456789 |
+=============================================================================================================
+=============================================================================================================
+|  2        |    4      |     5     |   3       | 1         |        8  |      6    |         9 |       7   |
+|       7   | 1         |        8  |      6    |         9 |  2        |   3       |    4      |     5     |
+|   3       |         9 |      6    |     5     |    4      |       7   |  2        |        8  | 1         |
+=============================================================================================================
+|    4      |   3       |  2        |         9 |        8  | 1         |     5     |       7   |      6    |
+|      6    |        8  |       7   |    4      |  2        |     5     | 1         |   3       |         9 |
+| 1         |     5     |         9 |       7   |   3       |      6    |        8  |  2        |    4      |
+=============================================================================================================
+|     5     |      6    |   3       |  2        |       7   |         9 |    4      | 1         |        8  |
+|        8  |       7   |    4      | 1         |      6    |   3       |         9 |     5     |  2        |
+|         9 |  2        | 1         |        8  |     5     |    4      |       7   |      6    |   3       |
+=============================================================================================================
+>>>>>> ./puzzles1/l4-1.txt solved, sane!
+    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+        bfs:  cells 2, values 3
+stevej@bsd84:~/sudoku %
+
+
+To run the program, advanced use:
+
+So far, all newspaper puzzles tested have been solved by the algorithms,
+or by the algorithms + breadth-first search.  However, more complicated
+puzzles can be solved with the recursive descent feature.  It must be
+used with caution, however, as the amount of computation can grow
+exponentially with number of levels of recursion; it all depends on the
+puzzle.  Solutions have been measured as taking from milliseconds to
+days, with the possibility of taking weeks, months or years.
+
+The following involve modifications of l4-27.txt, from which some of the
+specified values have been removed.
+
+
+"-r" specifies recursive descent, if needed because the basic algorithms
+fail to arrive at a solution.
+
+"-D 20" permits recursion to a depth of 20 levels.  The default is -D 4.
+Note that "-r -D 1" is roughly equivalent to "-b".
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2
+*** ./puzzles_test1/l4-27.test1.txt not solved, sane!  Solution failed!
+    Iterations:  5.  Changes:  Rows 158, cols 140, squares 73, tot 371
+stevej@bsd84:~/sudoku % 
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -b
+*** ./puzzles_test1/l4-27.test1.txt not solved, sane!  Solution failed!
+    Iterations:  5.  Changes:  Rows 158, cols 140, squares 73, tot 371
+        bfs:  cells 40, values 117
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
+>>>>>> ./puzzles_test1/l4-27.test1.txt solved, sane!
+    Iterations:  17.  Changes:  Rows 184, cols 166, squares 93, tot 443
+        dfs:  cells 4, values 4
+stevej@bsd84:~/sudoku %
+
+
+With the more difficult "l4-27.test2.txt" puzzle:
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2
+*** ./puzzles_test1/l4-27.test2.txt not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b
+*** ./puzzles_test1/l4-27.test2.txt not solved, sane!  Solution failed!
+    Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
+        bfs:  cells 67, values 382
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 20
+>>>>>> ./puzzles_test1/l4-27.test2.txt solved, sane!
+    Iterations:  44.  Changes:  Rows 175, cols 227, squares 103, tot 505
+        dfs:  cells 16, values 17
+stevej@bsd84:~/sudoku %
+
+
