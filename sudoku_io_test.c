@@ -163,13 +163,6 @@ input_values(int argc, char **argv, prog_info_t *pi)
     int            opt;
     int            rc;
 
-#ifdef REMOVED
-    pi->input_fd = NULL;
-    pi->output_fd = NULL;
-    pi->in_filename = NULL;
-    pi->out_filename = NULL;
-#endif
-
     /*
      * Note:  Can hack puzzle name into program for testing like the following:
      */
