@@ -11,7 +11,7 @@
  * contain one value (number).  In a 9x9 game, the value can be one of
  * 1 - 9, inclusive.
  * A determined cell represents (contains) exactly one value.
- * An undetermined cell can contain up to 9 possible values.
+ * An undetermined cell can contain one of up to 9 possible values.
  * Each cell appears in exactly three dimensions, a row, a column and
  * a square.  Each dimension in a standard game contains 9 cells.
  *
@@ -66,12 +66,38 @@
  *     becomes:
  *       |  236 |  78  |   5  |  178 |   9  |  36  |   4  |  23  |   1  |
  *
- * Serpentine analysis (not implemented):
- *     Fixme
- *     Fixme:  Now exists, document.  Many relevant comments in code.
- *     Fixme
- *     A pseudo-stub exists.
- *     12 23 13
+ * Serpentine analysis:  Within a dimension, if a number of cells contain
+ *     a serpentine, as shown in the examples below, all of the values in
+ *     the serpentine cells are "spoken for."  Therefore, all values
+ *     contained in the serpentine cells can be cleared from the balance
+ *     of the cells in the dimension.
+ *
+ *     at present, all serpentines involve exactly three cells.
+ *
+ *     symbolic example:  AB BC AC      concrete example:  12 23 13
+ *     symbolic example:  AB BC ABC     concrete example:  12 23 123
+ *     symbolic example:  AB ABC ABC    concrete example:  12 123 123
+ *     symbolic example:  ABC ABC ABC   concrete example:  123 123 123
+ *
+ *   Example:  perfect serpentine:  56 25 26
+ *    |   56  |  4    | 3     | 125 9 | 125 9 | 2  5  |    7  |    8  | 2  6  |
+ *   becomes:
+ *    |   56  |  4    | 3     | 1   9 | 1   9 | 2  5  |    7  |    8  | 2  6  |
+ *
+ *   Example:  serpentine:  278 27 78
+ *    | 24789 | 2 78  | 1     |   5   | 2  7  |  3    |    6  |    78 | 4 789 |
+ *   becomes:
+ *    |  4  9 | 2 78  | 1     |   5   | 2  7  |  3    |    6  |    78 | 4   9 |
+ *
+ *   Example:  serpentine:  46 146 146
+ *    | 34 67 |  4 6  | 34 67 |     9 | 1 4 6 |   5   | 2     | 1 4 6 |    8  |
+ *   becomes:
+ *    | 3   7 |  4 6  | 3   7 |     9 | 1 4 6 |   5   | 2     | 1 4 6 |    8  |
+ *
+ *   Example:  serpentine:  568 568 568
+ *    |  4    | 1     | 25 78 |     9 |  3    |  56 8 |  56 8 |  56 8 | 2 678 |
+ *   becomes:
+ *    |  4    | 1     | 2  7  |     9 |  3    |  56 8 |  56 8 |  56 8 | 2  7  |
  *
  * (multi) dimensional analysis
  *     Within a square dimension, two or three undetermined cells may be
@@ -95,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.66 2018/04/15 01:21:23 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.68 2018/04/17 08:01:38 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -112,7 +138,6 @@ static const char rcsid[]="$Id: sudoku.c,v 1.66 2018/04/15 01:21:23 stevej Exp $
 /*
  * Globals
  */
-game_t     *g_game   = NULL;
 dprint_t   *g_dprint = NULL;
 
 
@@ -406,10 +431,16 @@ board_is_sane_solved(board_t *board)
 }
 
 /*
- * The game is sane in an unsolved context if ...
- * Fixme:  Need to figure this out.
- * Fixme:  Need to figure this out.
- * Fixme:  Need to figure this out.
+ * The game is sane in a partially solved context if, within each
+ * dimension:
+ * - The value in any determined cell in the dimension cannot match
+ *   the value in any other determined cell in the dimension.
+ * - The value also must not match a value in any undetermined cell.
+ * - Requires that an attempt has already been made to solve the
+ *   dimension.  In other words, determined cell values must have
+ *   already been eliminated from the undetermined cells.
+ * - Also, the number of possible values contained in each cell
+ *   must be from 0 to 9, inclusive.
  */
 bool
 board_is_sane_part_solved(board_t *board)
@@ -468,10 +499,13 @@ board_is_sane_part_solved(board_t *board)
 }
 
 /*
- * The game is sane in an unsolved context if ...
- * Fixme:  Need to figure this out.
- * Fixme:  Need to figure this out.
- * Fixme:  Need to figure this out.
+ * The game is sane in an unsolved context if, within each dimension:
+ * - The value in any determined cell in the dimension cannot match
+ *   the value in any other determined cell in the dimension.
+ * - Also, the number of possible values contained in each cell
+ *   must be from 0 to 9, inclusive.
+ * - Makes no assumptions about, and does no checking of, the values
+ *   contained in undetermined cells.
  */
 bool
 board_is_sane_never_solved(board_t *board)
@@ -1146,11 +1180,6 @@ clear_array_value(bool array[DIMENSION_SIZE], uint4 value)
     array[value - 1] = FALSE;
 }
 
-// Fixme
-// Fixme:  Should no longer be needed in this file
-// Fixme
-#define MAX_LINE_SIZE       256
-
 /*
  * Print the usage string
  */
@@ -1189,13 +1218,6 @@ input_puzzle_file(game_t *game, FILE *input_fd)
     if (rc) {
         return (rc);
     }
-
-    // Fixme
-    // Fixme:  Debugging code only.
-    // Fixme
-    //print_puzzle_array(intermediate_board_format);
-    //print_puzzle_file("Source:  ", "Date:    ", "Level:   ",
-    //    intermediate_board_format);
 
     /*
      * Populates the initial board in the game.
@@ -2494,6 +2516,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     *sum_cells_tested  = 0;
     *sum_values_tested = 0;
 
+    // Fixme:  board_ret believed unused, unnecessary.
     *board_ret = NULL;
 
     recursion_level++;
@@ -2615,6 +2638,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
                         /*
                          * recurse here
                          */
+// Fixme
 //printf(">>>>>>>> recurse %d! <<<<<<<<\n", recursion_level);
                         df_success = depth_first_process_board(game,
                             board_new, board_ret, recursion_level,
@@ -2623,19 +2647,15 @@ depth_first_process_board(game_t *game, board_t *board_orig,
                             sum_num_tot_changes, iterations,
                             sum_cells_tested, sum_values_tested);
                         if (df_success) {
+// Fixme
 printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
     df_success);
                             //board_new = *board_ret;
                             board_new = game->board_curr;
 
-// Fixme
-// Fixme
-// Fixme
                     solved = board_is_solved(board_new);
                     printd(D_DFS, "    dfs:  df rec solved %d\n", solved);
 
-                    // Fixme
-                    //sane = FALSE;
                     if (solved) {
                         sane = board_is_sane_solved(board_new);
                     } else {
@@ -2645,6 +2665,7 @@ printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
 
                             goto search_complete;
                         } else {
+// Fixme
 //printf(">>>>>>>> recurse return failure %d! %d <<<<<<<<\n", recursion_level,
 //    df_success);
                         }
@@ -2757,10 +2778,6 @@ main(int argc, char **argv)
         exit(10);
     }
 
-    // Fixme
-    // Fixme:  Not used.
-    // Fixme
-    g_game   = game;
     g_dprint = &(game->dprint);
 
     rc = input_values(argc, argv, game);
