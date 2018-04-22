@@ -2555,6 +2555,12 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      *       - if puzzle not solved, but is sane, call this function
      *         recursively
      *     - if no more undetermined cells, return SOLVED_FAIL
+     *
+     * Fixme:  We can add an array of all possible (row, col)
+     *   values to the game state.  This can then be indexed by
+     *   cell_index as before.  A cell count then needs to be
+     *   added to the board_find_next_undetermined_cell() state.
+     *   We can then implement a random start value with wraparound.
      */
     do {
         cell = board_find_next_undetermined_cell(board_new, &cell_index);
@@ -2618,8 +2624,6 @@ depth_first_process_board(game_t *game, board_t *board_orig,
                     solved = board_is_solved(board_new);
                     printd(D_DFS, "    dfs:  df solved %d\n", solved);
 
-                    // Fixme
-                    //sane = FALSE;
                     if (solved) {
                         sane = board_is_sane_solved(board_new);
                     } else {
@@ -2650,7 +2654,6 @@ depth_first_process_board(game_t *game, board_t *board_orig,
 // Fixme
 printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
     df_success);
-                            //board_new = *board_ret;
                             board_new = game->board_curr;
 
                     solved = board_is_solved(board_new);
@@ -2703,15 +2706,9 @@ search_complete:
 
     if (df_success) {
         /*
-         * On success, the current board becomes the new, freshly solved
+         * On success, the current board became the new, freshly solved
          * board.  All of the other pointers are already correct.
          */
-// Fixme
-// Fixme
-// Fixme
-// Fixme
-// Fixme
-        //game->board_curr = board_new;
 
         /* Add BFS-caused changes to the running totals kept by the game */
         *sum_num_row_changes    += df_tot_num_row_changes;
@@ -2726,13 +2723,6 @@ search_complete:
          * processing that we need to accommodate.
          * Fixme:  Delay initial setting of pointers until the end?
          */
-// Fixme
-// Fixme
-// Fixme
-// Fixme
-// Fixme
-        //board_set_pointers(game->board_curr, game, game->board_curr->prev,
-        //    NULL);
         board_set_pointers(board_orig, game, board_orig->prev, NULL);
         free(board_new);
     }
