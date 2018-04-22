@@ -1,0 +1,31 @@
+#!/bin/sh
+
+SUDOKU="../sudoku"
+FLAGS="-s 2"
+PDIR="../puzzles_test1"
+
+# Takes a perceptible amount of time to find a solution.
+$SUDOKU $FLAGS -b -f $PDIR/l4-18.test1.txt
+
+# Solved quickly with deep recursion.
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-18.test2.txt
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-18.test3.txt
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-18.test4.txt
+
+# Solved quickly with deep recursion.
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-27.test1.txt
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-27.test2.txt
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-27.test3.txt
+# Solved in a couple of seconds with -D 20 recursion.
+$SUDOKU $FLAGS -r -D 20 -f $PDIR/l4-27.test4.txt
+# Solved quickly with deeper recursion.
+$SUDOKU $FLAGS -r -D 30 -f $PDIR/l4-27.test4.txt
+
+# Solved quickly with deeper recursion.
+$SUDOKU $FLAGS -r -D 30 -f $PDIR/l4-27.test5.txt
+
+#
+# No timely solution found to the following as of 04/21/18:
+#
+#$SUDOKU $FLAGS -r -D 40 -f $PDIR/l4-27.test6.txt
+
