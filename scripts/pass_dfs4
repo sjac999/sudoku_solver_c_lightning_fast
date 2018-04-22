@@ -1,12 +1,12 @@
 #!/bin/sh
 
 SUDOKU="../sudoku"
-FLAGS="-b -s 2"
+FLAGS="-r -D 20 -s 2"
 PDIR="../puzzles1"
 
 #
-# Solved as of 04/17/18, using BFS as needed.
-# These puzzles previously passed without BFS.
+# Solved as of 04/20/18, using DFS as needed.
+# These puzzles previously passed without DFS.
 #
 for PNAME in g1 g2                                    \
 	m1 m2 m3 m4 m5 m6 m7 m8 m9                    \
@@ -25,14 +25,14 @@ for PNAME in g1 g2                                    \
 	l3-48 l3-50 l3-51 l3-53 l3-55 l3-56           \
 	l3-59 l3-61 l3-62 cp4-7 cp5-3 l3-63           \
 	l3-66 l3-67 l3-68
-
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
 
 #
-# Solved as of 04/17/18, using BFS as needed.
-# These puzzles previously failed (without BFS).
+# Solved as of 04/20/18, using DFS as needed.
+# These puzzles previously failed (without DFS).
+# Note:  l4-18 and l4-19 are not on this list.
 #
 for PNAME in                                          \
 	d4 d7 u5s6 d10 l4-1                           \
@@ -40,7 +40,7 @@ for PNAME in                                          \
 	l4-6 l4-7 l4-8 l4-9                           \
 	l4-10 l4-11 l4-12 l4-13                       \
 	l4-14 l4-15 l4-16 l4-17                       \
-	l4-18 l4-19 l3-10 l3-13                       \
+	l3-10 l3-13                                   \
 	l4-20 l3-21 l3-22 l3-24                       \
 	l3-25 l3-29 l3-31 l4-21                       \
 	l4-22 l4-23 l4-24 l4-25                       \

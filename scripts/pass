@@ -73,7 +73,9 @@ done
 #
 for PNAME in l3-38 l3-40 l3-41 l3-42 l3-43            \
 	l3-46 l3-48 l3-50 l3-51 l3-53 l3-55 l3-56     \
-	l3-59 l3-61 l3-62 cp4-7 cp5-3 l3-63
+	l3-59 l3-61 l3-62 cp4-7 cp5-3 l3-63           \
+	l3-66 l3-67 l3-68
+
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
