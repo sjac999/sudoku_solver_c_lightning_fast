@@ -1,0 +1,19 @@
+#
+# Source:  
+# Date:    
+# Level:   
+# Note:  This puzzle is identical to ../puzzles1/l4-41.txt, except
+# the numbers have been substituted.  This variant of the puzzle
+# now takes an indeterminate amount of time with "-r -D 20".
+#
+6,.,., .,.,7, .,.,8
+.,4,., .,3,., .,.,.
+.,.,., 8,.,., .,4,1
+#
+.,1,., .,9,., 8,3,.
+.,.,., .,.,., .,.,.
+.,3,7, .,6,., 9,1,.
+#
+4,5,., .,.,8, .,.,.
+.,.,9, .,5,., .,.,.
+1,.,., 6,.,., .,.,3
