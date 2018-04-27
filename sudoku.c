@@ -121,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.68 2018/04/17 08:01:38 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.72 2018/04/27 08:02:21 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -594,6 +594,9 @@ get_square_num(uint4 cell_row, uint4 cell_col)
 board_t *
 game_init(game_t *game)
 {
+    uint4    row, col;
+    uint4    i = 0;
+
     /*
      * Fixme:  May be insufficient once recursive descent is implemented.
      */
@@ -607,6 +610,16 @@ game_init(game_t *game)
     game->filename = NULL;
     game->game_flags = 0;
     game->max_num_recursion_levels = DEFAULT_MAX_NUM_RECURSION_LEVELS;
+    game->initial_start_index = 0;
+
+    /* Initialize the "map index to coordinates" lookup table */
+    for (row=0; row < NUM_HORIZ_CELLS; row++) {
+        for (col=0; col < NUM_VERT_CELLS; col++) {
+            game->coord[i].row = row;
+            game->coord[i].col = col;
+            i++;
+        }
+    }
 
     return (game->board_head);
 }
@@ -718,37 +731,125 @@ board_find_first_undetermined_cell(board_t *board)
 /*
  * Finds the first undetermined cell in the board, if any, which is not
  * before the position indicated by "index".
- *   *index:
+ *   state->state_index:
+ *     - passed in by the caller
+ *     - traditionally initialized to 0 by the caller before the first call
+ *     - (unimplemented) initialized to some value 0 <= value <= TOT_NUM_CELLS
+ *     -  by the caller before the first call.  Allows random seeding
+ *        of the search start value
+ *     - updated by this function before return
+ *     - allows this function to track the state of where to start
+ *        looking for the next undetermined cell
+ *     - must not be modified by the caller
+ *   state->state_count:
  *     - passed in by the caller
  *     - initialized to 0 by the caller before the first call
  *     - updated by this function before return
- *     - allows this function to track the state of where to start
- *        for the next undetermined cell
+ *     - allows this function to track the state of how many cells
+ *        have been examined.  Used to detect terminal condition.
  *     - must not be modified by the caller
  * Returns a pointer to the cell, if any, else NULL.
  */
 cell_t *
-board_find_next_undetermined_cell(board_t *board, uint4 *state_index)
+board_find_next_undetermined_cell(game_t *game, board_t *board,
+                                  bfnuc_state_t *state)
 {
     cell_t   *cell;
     uint4    row, col;
-    uint4    internal_index = 0;
+    uint4    internal_index;
+    uint4    internal_count;
 
+    internal_count = state->state_count;
+    if (TOT_NUM_CELLS <= internal_count) {
+        // Fixme
+        //printf("returning cell %p row %u col %u\n", NULL, 0, 0);
+
+        return (NULL);
+    }
+    internal_index = state->state_index;
+
+//#ifdef REMOVED
+    do {
+        row = game->coord[internal_index].row;
+        col = game->coord[internal_index].col;
+        cell = &board->x_y_board[row][col];
+
+        if (cell->num_possible_values > 1) {
+            state->state_index = internal_index + 1;
+            if (internal_index >= TOT_NUM_CELLS) {
+                state->state_index = 0;
+            }
+            state->state_count = internal_count + 1;
+
+            // Fixme
+            //printf("returning cell %p row %u col %u i %u cnt %u\n",
+            //    cell, row, col, state->state_index, state->state_count);
+
+            return (cell);
+        }
+        internal_index++;
+        internal_count++;
+    } while (internal_count <= TOT_NUM_CELLS);
+
+    state->state_index = internal_index;
+    state->state_count = internal_count;
+//#endif
+
+// Fixme
+#ifdef REMOVED
     for (row=0; row < NUM_HORIZ_CELLS; row++) {
         for (col=0; col < NUM_VERT_CELLS; col++) {
-            if (*state_index > internal_index) {
+            if (state->state_index > internal_index) {
                 internal_index++;
                 continue;
             }
             cell = &board->x_y_board[row][col];
             if (cell->num_possible_values > 1) {
-                *state_index = internal_index + 1;
+                state->state_index = internal_index + 1;
                 return (cell);
             }
             internal_index++;
         }
     }
+#endif
+
+    // Fixme
+    //printf("returning cell %p row %u col %u\n", NULL, row, col);
+
     return (NULL);
+}
+
+/*
+ * Seed the random number generator, which is optionally used in
+ * selecting a starting cell index for searching a board.
+ * Works for FreeBSD.  Should work for Linux, but has not been tested.
+ */
+void
+seed_random_number_generator(void)
+{
+    srandomdev();
+}
+
+/*
+ * Return the starting cell index for searching a board.  The value
+ * returned is a random index if requested; else a specified value, if
+ * provided; else 0.
+ * Works for FreeBSD.  Should work for Linux, but has not been tested.
+ */
+uint4
+board_get_initial_cell_index(game_t *game)
+{
+    long     rand_raw;
+    uint4    rand_val;
+
+    if (RANDOM_START_INDEX & game->game_flags) {
+        rand_raw = random();
+        rand_val = rand_raw % TOT_NUM_CELLS;
+
+        return (rand_val);
+    } else {
+        return (game->initial_start_index);
+    }
 }
 
 /*
@@ -1193,6 +1294,8 @@ usage(int argc, char **argv)
     printf("   -D:		maximum depth for depth-first recursion\n");
     printf("   -f:		specify puzzle filename\n");
     printf("   -?h:		print help and exit\n");
+    printf("   -i:		specify starting index for puzzle search\n");
+    printf("   -I:		random starting index for puzzle search\n");
     printf("   -r:		try recursive descent if needed\n");
     printf("   -R:		use only recursive descent (unimplemented)\n");
     printf("   -s:		silent mode level\n");
@@ -1258,7 +1361,7 @@ input_values(int argc, char **argv, game_t *game)
     /*
      * Command line options handling
      */
-    while ((opt = getopt(argc, argv, "?bd:D:f:hrRs:V")) != EOF) {
+    while ((opt = getopt(argc, argv, "?bd:D:f:hi:IrRs:V")) != EOF) {
         switch (opt) {
         case 'b':
             game->game_flags |= BREADTH_FIRST_1LR;
@@ -1286,20 +1389,32 @@ input_values(int argc, char **argv, game_t *game)
         case 'f':
             filename = strdup(optarg);
             break;
+        case 'i':
+            levels = strtoul(optarg, &endptr, 0);
+            if (errno != ERANGE && *endptr == '\0') {
+                game->initial_start_index = levels;
+            } else {
+                printf("Invalid start index %d\n", levels);
+                free(filename);
+                return (-1);
+            }
+            if (TOT_NUM_CELLS <= levels) {
+                printf("Start index too large %d\n", levels);
+                free(filename);
+                return (-1);
+            }
+            game->initial_start_index = levels;
+            break;
+        case 'I':
+            game->game_flags |= RANDOM_START_INDEX;
+            seed_random_number_generator();
+            break;
         case 'r':
             game->game_flags |= REC_DESCENT;
             break;
         case 'R':
             game->game_flags |= REC_DESCENT_ONLY;
             break;
-#ifdef REMOVED
-        case 's':
-            game->dprint.silent_flags |= DS_SILENT;
-            break;
-        case 'S':
-            game->dprint.silent_flags |= DS_SUPER_SILENT;
-            break;
-#endif
         case 's':
             levels = strtoul(optarg, &endptr, 0);
             if (errno != ERANGE && *endptr == '\0') {
@@ -2298,6 +2413,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
     bool     bf_success = FALSE;;
     uint4    bf_cells_tested = 0;
     uint4    bf_values_tested = 0;
+    bfnuc_state_t  bfnuc_state;
 
     // Fixme:  Redundant at the moment.
     *sum_cells_tested  = 0;
@@ -2321,7 +2437,11 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
      * cell_index contains state for board_find_next_undetermined_cell()
      * We can't mess with it after initialization.
      */
-    cell_index = 0;
+    // Fixme
+    //cell_index = 0;
+    //bfnuc_state.state_index = 0;
+    bfnuc_state.state_index = board_get_initial_cell_index(game);
+    bfnuc_state.state_count = 0;
 
     /*
      * For every undetermined cell,
@@ -2333,7 +2453,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
      *     - if no more undetermined cells, return SOLVED_FAIL
      */
     do {
-        cell = board_find_next_undetermined_cell(board_new, &cell_index);
+        cell = board_find_next_undetermined_cell(game, board_new, &bfnuc_state);
         if (cell) {
             printd(D_BFS, "BFS:  undetermined cell:  (%u, %u, %u):  |",
                 cell->row, cell->col, cell->square);
@@ -2500,7 +2620,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     board_t  *board_new;
     cell_t   *cell;
     uint4    value;
-    uint4    cell_index;
+    //uint4    cell_index;
     uint4    df_tot_num_row_changes = 0;
     uint4    df_tot_num_col_changes = 0;
     uint4    df_tot_num_square_changes = 0;
@@ -2511,6 +2631,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     bool     df_success = FALSE;;
     uint4    df_cells_tested = 0;
     uint4    df_values_tested = 0;
+    bfnuc_state_t  bfnuc_state;
 
     // Fixme:  Redundant at the moment.
     *sum_cells_tested  = 0;
@@ -2543,7 +2664,11 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      * cell_index contains state for board_find_next_undetermined_cell()
      * We can't mess with it after initialization.
      */
-    cell_index = 0;
+    // Fixme
+    //cell_index = 0;
+    //bfnuc_state.state_index = 0;
+    bfnuc_state.state_index = board_get_initial_cell_index(game);
+    bfnuc_state.state_count = 0;
 
     /*
      * For every undetermined cell,
@@ -2563,12 +2688,12 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      *   We can then implement a random start value with wraparound.
      */
     do {
-        cell = board_find_next_undetermined_cell(board_new, &cell_index);
+        cell = board_find_next_undetermined_cell(game, board_new, &bfnuc_state);
         if (cell) {
             printd(D_DFS, "DFS:  undetermined cell:  (%u, %u, %u):  |",
                 cell->row, cell->col, cell->square);
             printd_cell_cell(D_DFS, cell);
-            printd(D_DFS, "  cell_index %d\n", cell_index);
+            printd(D_DFS, "  cell_index %d\n", bfnuc_state.state_index);
             df_cells_tested++;
         } else {
             printd(D_DFS, "DFS:  cell not found, cells exhausted!\n");
@@ -2598,7 +2723,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
                 printd(D_DFS, "    dfs:  cell now:  (%u, %u, %u):  |",
                     cell->row, cell->col, cell->square);
                 printd_cell_cell(D_DFS, cell);
-                printd(D_DFS, "  cell_index %d\n", cell_index);
+                printd(D_DFS, "  cell_index %d\n", bfnuc_state.state_index);
 
                 if (0 == game->dprint.silent_level) {
                     printd_board(D_DFS, board_new);

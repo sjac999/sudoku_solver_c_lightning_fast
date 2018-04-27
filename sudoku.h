@@ -32,6 +32,8 @@ typedef unsigned long long         uint8;
 #define NUM_HORIZ_CELLS_IN_SQUARE  (SQRT_DIMENSION_SIZE)
 #define NUM_VERT_CELLS_IN_SQUARE   (SQRT_DIMENSION_SIZE)
 #define NUM_SIDE_CELLS_IN_SQUARE   (SQRT_DIMENSION_SIZE)
+/* Total number of cells in the game */
+#define TOT_NUM_CELLS              (DIMENSION_SIZE * DIMENSION_SIZE)
 
 /* First dimension, the horizontal row */
 #define ROW                        0
@@ -42,14 +44,16 @@ typedef unsigned long long         uint8;
 
 #define DEFAULT_MAX_NUM_RECURSION_LEVELS	4
 
-/* Debug flags */
+/*
+ * Defines for game->dprint.flags
+ */
+/* Misc. debug flags */
 #define D_CRIT                     0x80000000
 #define D_ERR                      0x40000000
 #define D_INPUT                    0x00080000
 #define D_PROCESS                  0x00040000
 #define D_OUTPUT                   0x00020000
-
-/* Debug flags */
+/* Solver algorithm debug flags */
 #define D_CANTBE                   0x00000001
 #define D_MUSTBE                   0x00000002
 #define D_PAIR                     0x00000004
@@ -59,10 +63,15 @@ typedef unsigned long long         uint8;
 #define D_BFS                      0x00000100
 #define D_DFS                      0x00000200
 
+/*
+ * Defines for game->game_flags
+ */
 /* Recursive descent flags */
 #define BREADTH_FIRST_1LR          0x00000001
 #define REC_DESCENT                0x00000010
 #define REC_DESCENT_ONLY           0x00000020
+/* Random starting cell index flag */
+#define RANDOM_START_INDEX         0x80000000
 
 /* Controls verbocity (not currently used) */
 #define DS_SILENT                  0x00000001
@@ -82,6 +91,25 @@ typedef struct dprint_ {
 } dprint_t;
 
 //#endif  /* REMOVED */
+
+/*
+ * Coordinate of one cell in a board
+ */
+typedef struct coord_ {
+    char     row;
+    char     col;
+} coord_t;
+
+/*
+ * Coordinate of one cell in a board.
+ * Used to hold state for board_find_next_undetermined_cell()
+ */
+typedef struct bfnuc_state_ {
+    /* index of the first or next cell to examine in a board */
+    uint4    state_index;
+    /* number of cells examined so far in a board */
+    uint4    state_count;
+} bfnuc_state_t;
 
 /*
  * Structure representing one cell of the board
@@ -129,6 +157,10 @@ typedef struct game_ {
     uint4     game_flags;
     /* Limits depth of recursion in depth-first recursion function */
     uint4     max_num_recursion_levels;
+    /* Initial cell index at which to start searching the board */
+    uint4     initial_start_index;
+    /* Array of coordinates of each cell in a board */
+    coord_t   coord[TOT_NUM_CELLS];
 } game_t;
 
 
