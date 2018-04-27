@@ -5,7 +5,7 @@ FLAGS="-r -D 3 -s 2"
 PDIR="../puzzles1"
 
 #
-# Solved as of 03/15/18, using DFS as needed.
+# Solved as of 04/23/18, using DFS as needed.
 # These puzzles previously passed without DFS.
 #
 for PNAME in g1 g2                                    \
@@ -30,7 +30,7 @@ do
 done
 
 #
-# Solved as of 03/15/18, using DFS as needed.
+# Solved as of 04/23/18, using DFS as needed.
 # These puzzles previously failed (without DFS).
 #
 for PNAME in                                          \
@@ -53,7 +53,7 @@ for PNAME in                                          \
 	l4-46 l4-47 l4-48 l4-49 l4-50                 \
 	l4-51 l4-52                                   \
 	l3-64 l3-65 l4-53 l4-54 l4-55 l4-56           \
-	l4-57 l4-58 l4-59 l4-60
+	l4-57 l4-58 l4-59 l4-60 l4-61 l4-62
 
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt

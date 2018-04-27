@@ -268,3 +268,7 @@ $SUDOKU $FLAGS -f $PDIR/l4-58.txt
 $SUDOKU $FLAGS -f $PDIR/l4-59.txt
 $SUDOKU $FLAGS -f $PDIR/l4-60.txt
 
+# Algorithmic solver cannot fully solve at this time, 04/23/18.
+$SUDOKU $FLAGS -f $PDIR/l4-61.txt
+$SUDOKU $FLAGS -f $PDIR/l4-62.txt
+
