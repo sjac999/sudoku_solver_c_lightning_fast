@@ -121,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.72 2018/04/27 08:02:21 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.73 2018/04/28 08:43:09 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -2402,7 +2402,6 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
     board_t  *board_new;
     cell_t   *cell;
     uint4    value;
-    uint4    cell_index;
     uint4    bf_tot_num_row_changes = 0;
     uint4    bf_tot_num_col_changes = 0;
     uint4    bf_tot_num_square_changes = 0;
@@ -2434,12 +2433,9 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
     board_set_pointers(board_new, game, game->board_curr, NULL);
 
     /*
-     * cell_index contains state for board_find_next_undetermined_cell()
+     * bfnuc_state contains state for board_find_next_undetermined_cell()
      * We can't mess with it after initialization.
      */
-    // Fixme
-    //cell_index = 0;
-    //bfnuc_state.state_index = 0;
     bfnuc_state.state_index = board_get_initial_cell_index(game);
     bfnuc_state.state_count = 0;
 
@@ -2458,7 +2454,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
             printd(D_BFS, "BFS:  undetermined cell:  (%u, %u, %u):  |",
                 cell->row, cell->col, cell->square);
             printd_cell_cell(D_BFS, cell);
-            printd(D_BFS, "  cell_index %d\n", cell_index);
+            printd(D_BFS, "  cell_index %d\n", bfnuc_state.state_index);
             bf_cells_tested++;
         } else {
             printd(D_BFS, "BFS:  cell not found, solution FAILED!\n");
@@ -2488,7 +2484,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
                 printd(D_BFS, "    bfs:  cell now:  (%u, %u, %u):  |",
                     cell->row, cell->col, cell->square);
                 printd_cell_cell(D_BFS, cell);
-                printd(D_BFS, "  cell_index %d\n", cell_index);
+                printd(D_BFS, "  cell_index %d\n", bfnuc_state.state_index);
 
                 if (0 == game->dprint.silent_level) {
                     printd_board(D_BFS, board_new);
@@ -2620,7 +2616,6 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     board_t  *board_new;
     cell_t   *cell;
     uint4    value;
-    //uint4    cell_index;
     uint4    df_tot_num_row_changes = 0;
     uint4    df_tot_num_col_changes = 0;
     uint4    df_tot_num_square_changes = 0;
@@ -2661,12 +2656,9 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     board_set_pointers(board_new, game, board_orig, NULL);
 
     /*
-     * cell_index contains state for board_find_next_undetermined_cell()
+     * bfnuc_state contains state for board_find_next_undetermined_cell()
      * We can't mess with it after initialization.
      */
-    // Fixme
-    //cell_index = 0;
-    //bfnuc_state.state_index = 0;
     bfnuc_state.state_index = board_get_initial_cell_index(game);
     bfnuc_state.state_count = 0;
 
