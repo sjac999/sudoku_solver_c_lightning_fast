@@ -280,7 +280,7 @@ exponentially with number of levels of recursion; it all depends on the
 puzzle.  Solutions have been measured as taking from milliseconds to
 days, with the possibility of taking weeks, months or years.
 
-The following program invocations involve modifications of l4-27.txt, from
+The following program invocations involve variants of l4-27.txt, from
 which some of the specified values have been removed.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
@@ -328,8 +328,8 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 2
 stevej@bsd84:~/sudoku %
 
 
-Specifying a starting cell index while running:
------------------------------------------------
+Specifying a starting cell index when running:
+----------------------------------------------
 
 The "-i <number>" and "-I" options apply to both recursive descent ("-d")
 and breadth-first search ("-b").  These options have been shown to be
@@ -337,7 +337,7 @@ useful when solving certain difficult puzzles with recursive descent.
 They have not proven useful so far with breadth-first search.
 
 There are 81 cells (small squares) in a standard 9 x 9 Sudoku puzzle.
-Normally, testing starts at cell 0, the cell a the upper left-hand
+Normally, testing starts at cell 0, the cell in the upper left-hand
 corner of the puzzle.
 
 Certain difficult Sudoku puzzles expose the extreme computational complexity
@@ -362,7 +362,7 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2
 ^C
 
 The invocation above was not completing in a reasonable amount of time,
-so it was halted with Ctrl-C.
+so it was halted with ctrl-C.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
 >>>>>> ./puzzles1/l4-19.txt solved, sane!
@@ -387,5 +387,5 @@ stevej@bsd84:~/sudoku %
 Using "-I", the program had to be invoked three times (in this particular
 example) before the program completed quickly.  Since the cell index at
 every level is random, not pseudo-random, results will likely differ with
-every test.
+every test run.
 
