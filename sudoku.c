@@ -121,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.73 2018/04/28 08:43:09 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.74 2018/04/29 03:30:38 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1287,19 +1287,21 @@ clear_array_value(bool array[DIMENSION_SIZE], uint4 value)
 void
 usage(int argc, char **argv)
 {
-    printf("\nusage: %s [-?hbdDfrRsV] [-d <debug flags>] [-f <filename>]\n",
+    printf("\nusage: %s [-?hbIrRV] [-d <debug flags>] [-D <max depth>]\n"
+        "           [-i <start index>] [-s <silent level>] -f <file name>\n",
         argv[0]);
-    printf("   -b:		try breadth-first search if needed\n");
-    printf("   -d:		set debug flags\n");
-    printf("   -D:		maximum depth for depth-first recursion\n");
-    printf("   -f:		specify puzzle filename\n");
-    printf("   -?h:		print help and exit\n");
-    printf("   -i:		specify starting index for puzzle search\n");
-    printf("   -I:		random starting index for puzzle search\n");
-    printf("   -r:		try recursive descent if needed\n");
-    printf("   -R:		use only recursive descent (unimplemented)\n");
-    printf("   -s:		silent mode level\n");
-    printf("   -V:		print version string and exit\n");
+    printf(
+        "  -b:		try breadth-first search if needed\n"
+        "  -d:		set debug flags\n"
+        "  -D:		maximum depth for depth-first recursion\n"
+        "  -f:		specify puzzle filename\n"
+        "  -?h:		print help and exit\n"
+        "  -i:		specify starting index for puzzle search\n"
+        "  -I:		enable random starting index for puzzle search\n"
+        "  -r:		try recursive descent if needed\n"
+        "  -R:		use only recursive descent (unimplemented)\n"
+        "  -s:		silent mode level\n"
+        "  -V:		print version string and exit\n");
 }
 
 /*
