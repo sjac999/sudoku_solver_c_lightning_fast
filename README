@@ -1,14 +1,20 @@
 
+Sudoku Solver Program in C:  Lightning Fast
+===========================================
+Steve Jacobson
+April 28, 2018
+
 
 Introduction:
+-------------
 
 This program is a Sudoku puzzle solver written in C.  It uses repetitive
 application of algorithms to arrive at a solution, very much as a human
 does.  Because of this approach, it is many orders of magnitude faster
 than programs that rely on brute-force guessing.
 
-The sudoku program reads the puzzle to be solved from an ASCII file, an example
-of which is below.  This is ./puzzles1/l3-5.txt.
+The sudoku program reads the puzzle to be solved from an ASCII file, an
+example of which is below.  This is ./puzzles1/l3-5.txt.
 
 #
 # Source:
@@ -27,9 +33,10 @@ of which is below.  This is ./puzzles1/l3-5.txt.
 7,.,., .,.,9, .,.,2
 .,.,., 5,7,., .,.,.
 
-The format is a fairly accurate visual representation of a printed puzzle.
-"#" prefaces a comment line, the entirety of which is disregarded by the
-program.  Commas and spaces are separators, and must appear as shown.
+The format is a visual representation of a printed puzzle, in a mandatory
+rigid format.  "#" prefaces an optional comment line, the entirety of which
+is disregarded by the program.  Commas and spaces are separators, which
+must appear as shown.
 "." represents a cell with no value specified.  Integers 0-9 represent
 cells with initially specified values.
 
@@ -38,48 +45,56 @@ the sudoku program (and when reading this file).
 
 
 To compile the program:
+-----------------------
 
 1.  cd into the sudoku source code directory
 2.  type "make"
 
 
 To obtain help from the program:
+--------------------------------
 
 stevej@bsd84:~/sudoku % ./sudoku -h
 
-usage: ./sudoku [-?hbdDfrRsV] [-d <debug flags>] [-f <filename>]
-   -b:          try breadth-first search if needed
-   -d:          set debug flags
-   -D:          maximum depth for depth-first recursion
-   -f:          specify puzzle filename
-   -?h:         print help and exit
-   -r:          try recursive descent if needed
-   -R:          use only recursive descent (unimplemented)
-   -s:          silent mode level
-   -V:          print version string and exit
+usage: ./sudoku [-?hbIrRV] [-d <debug flags>] [-D <max depth>]
+           [-i <start index>] [-s <silent level>] -f <file name>
+  -b:           try breadth-first search if needed
+  -d:           set debug flags
+  -D:           maximum depth for depth-first recursion
+  -f:           specify puzzle filename
+  -?h:          print help and exit
+  -i:           specify starting index for puzzle search
+  -I:           enable random starting index for puzzle search
+  -r:           try recursive descent if needed
+  -R:           use only recursive descent (unimplemented)
+  -s:           silent mode level
+  -V:           print version string and exit
 stevej@bsd84:~/sudoku %
 
 
-To run the program using the basic algorithmic solver:
+Running the program using the basic algorithmic solver:
+-------------------------------------------------------
 
 Here is an example of running the sudoku solver program on the l3-5.txt
 puzzle, shown above.
 
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
+
 "-f ./puzzles1/l3-5.txt" specifies the puzzle file to be solved.
 
-"-s 1" specifies the level of silence (verbocity).  "-s 0" prints more
-chatter about the algorithms solving the puzzle than most users will
-care about  "-s 1" prints the starting and ending states of the puzzle,
-followed by a summary of the solution.  In this case, the program
-determined that the puzzle was actually solved, and that the solution
-was actually sane.
+"-s 1" specifies the level of silence (the absence of verbocity).
+"-s 0" prints more chatter about the algorithms solving the puzzle than
+most users will care about.  "-s 1" prints the starting and ending states
+of the puzzle, followed by a summary of the solution.  In this case the
+program determined that the puzzle was actually solved, and verified that
+the solution was actually sane.
 
 "|   3       |" represents a single cell of the puzzle.  It is a fully
 determined cell that contains, and can only contain, the value 3.
 
 "| 123456789 |" represents an undetermined single cell of the puzzle.
 It may ultimately contain any value in the range 0..9.  It is unknown
-at this time which one of those values it will ultimately contain.
+at this time which one of those values it will end up containing.
 
 =====================================
 |   3       | 123456789 | 123456789 |
@@ -153,15 +168,15 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
     Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
 stevej@bsd84:~/sudoku %
 
-
-"-s 3" prints nothing.  It is only useful for scripting, which can rely
-on the condition code returned by the program.
+"-s 3" prints nothing.  It is useful only for scripting, which can rely
+on the status value returned by the program.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
 stevej@bsd84:~/sudoku %
 
 
-To run the program, intermediate use:
+Running the program, intermediate use:
+--------------------------------------
 
 Basic application of the program, as shown above, should solve all
 puzzles where repetitive application of the algorithms is sufficient.
@@ -169,13 +184,15 @@ In other words, puzzles that do not require guessing.
 
 For puzzles requiring guessing, there is a breadth-first (-b) option
 that can solve all puzzles where correctly guessing only one cell is
-needed.  If the algorithms do not solve the puzzle, it makes and tests
-one guess at a time, then re-applies the algorithms.  It is effectively
-a recursive descent solver with a single level of recursion.
+sufficient.  If the algorithms do not solve the puzzle, it makes and
+tests one guess at a time, then re-applies the algorithms.  It is
+effectively a recursive descent solver with a single level of recursion.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
 
 "-b" enables the breadth-first search solver, if needed.  Breadth-first
-search is only done if the basic algorithmic solver fails to arrive at
-a solution.
+search is only invoked if the basic algorithmic solver fails to arrive
+at a solution.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2
 *** ./puzzles1/l4-1.txt not solved, sane!  Solution failed!
@@ -252,7 +269,8 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1 -b
 stevej@bsd84:~/sudoku %
 
 
-To run the program, advanced use:
+Running the program, advanced use:
+----------------------------------
 
 So far, all newspaper puzzles tested have been solved by the algorithms,
 or by the algorithms + breadth-first search.  However, more complicated
@@ -262,9 +280,10 @@ exponentially with number of levels of recursion; it all depends on the
 puzzle.  Solutions have been measured as taking from milliseconds to
 days, with the possibility of taking weeks, months or years.
 
-The following involve modifications of l4-27.txt, from which some of the
-specified values have been removed.
+The following program invocations involve modifications of l4-27.txt, from
+which some of the specified values have been removed.
 
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
 
 "-r" specifies recursive descent, if needed because the basic algorithms
 fail to arrive at a solution.
@@ -289,7 +308,6 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
         dfs:  cells 4, values 4
 stevej@bsd84:~/sudoku %
 
-
 With the more difficult "l4-27.test2.txt" puzzle:
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2
@@ -309,4 +327,65 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 2
         dfs:  cells 16, values 17
 stevej@bsd84:~/sudoku %
 
+
+Specifying a starting cell index while running:
+-----------------------------------------------
+
+The "-i <number>" and "-I" options apply to both recursive descent ("-d")
+and breadth-first search ("-b").  These options have been shown to be
+useful when solving certain difficult puzzles with recursive descent.
+They have not proven useful so far with breadth-first search.
+
+There are 81 cells (small squares) in a standard 9 x 9 Sudoku puzzle.
+Normally, testing starts at cell 0, the cell a the upper left-hand
+corner of the puzzle.
+
+Certain difficult Sudoku puzzles expose the extreme computational complexity
+that is possible with deep, depth-first recursion.  Those puzzles may take
+many days to solve under default conditions.  To give a better chance of
+finding a solution, the cell at which testing starts can be changed in
+one of two ways.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+
+"-i 41" causes testing to start at, in this example, cell 41 instead of
+the default cell 0.  The starting point will be cell 41 for every single
+level of the recursion.
+
+"-I" causes testing to start at some random cell index for each level of
+the recursion.  A new cell index is chosen at each recursion level.
+Possible values for the cell index are in the range 0 - 80, inclusive.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2
+^C
+
+The invocation above was not completing in a reasonable amount of time,
+so it was halted with Ctrl-C.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
+>>>>>> ./puzzles1/l4-19.txt solved, sane!
+    Iterations:  12.  Changes:  Rows 186, cols 166, squares 106, tot 458
+        dfs:  cells 2, values 7
+stevej@bsd84:~/sudoku % 
+
+The invocation above completed immediately as a result of adding "-i 41".
+Note that some experimentation was needed to find a value (41) leading to
+success with this puzzle.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+^C
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+^C
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+>>>>>> ./puzzles1/l4-19.txt solved, sane!
+    Iterations:  14.  Changes:  Rows 194, cols 164, squares 101, tot 459
+        dfs:  cells 2, values 3
+stevej@bsd84:~/sudoku %
+
+Using "-I", the program had to be invoked three times (in this particular
+example) before the program completed quickly.  Since the cell index at
+every level is random, not pseudo-random, results will likely differ with
+every test.
 
