@@ -121,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.74 2018/04/29 03:30:38 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.75 2018/05/05 04:14:57 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -2590,8 +2590,6 @@ search_complete:
 /*
  * Depth-first recursion.
  *
- * Fixme:  comments below need updating
- *
  * Iteratively:
  * - finds the first (or next) undetermined cell
  *   - "guesses" (selects) a value for that undetermined cell, from among
@@ -2599,9 +2597,14 @@ search_complete:
  *     - applies all solver algorithms to every row, column and square in
  *       the board.  Continues to iterate until no further changes are
  *       made by the solver algorithms
- *     - if the solver is unsuccessful, repeats the above two steps
- *   - if the above three steps are unsuccessful, returns FALSE
- *   - if the above three steps succeed, returns TRUE
+ *     - if the puzzle is solved, and sane, returns SOLVED_SUCCESS
+ *     - if puzzle is not solved, and is not sane, tries the next
+ *       guess for this board (the next undetermined cell and/or
+ *       the next value to try)
+ *     - if the puzzle is not solved, but is sane, calls this function
+ *       recursively
+ *   - if we are out of guesses (out of undetermined cells to test),
+ *     returns SOLVED_FAIL
  */
 uint4
 depth_first_process_board(game_t *game, board_t *board_orig,
@@ -2674,12 +2677,6 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      *       - if puzzle not solved, but is sane, call this function
      *         recursively
      *     - if no more undetermined cells, return SOLVED_FAIL
-     *
-     * Fixme:  We can add an array of all possible (row, col)
-     *   values to the game state.  This can then be indexed by
-     *   cell_index as before.  A cell count then needs to be
-     *   added to the board_find_next_undetermined_cell() state.
-     *   We can then implement a random start value with wraparound.
      */
     do {
         cell = board_find_next_undetermined_cell(game, board_new, &bfnuc_state);
@@ -2775,15 +2772,16 @@ printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
     df_success);
                             board_new = game->board_curr;
 
-                    solved = board_is_solved(board_new);
-                    printd(D_DFS, "    dfs:  df rec solved %d\n", solved);
+                            solved = board_is_solved(board_new);
+                            printd(D_DFS, "    dfs:  df rec solved %d\n",
+                              solved);
 
-                    if (solved) {
-                        sane = board_is_sane_solved(board_new);
-                    } else {
-                        sane = board_is_sane_part_solved(board_new);
-                    }
-                    printd(D_DFS, "    dfs:  df rec sane %d\n", sane);
+                            if (solved) {
+                                sane = board_is_sane_solved(board_new);
+                            } else {
+                                sane = board_is_sane_part_solved(board_new);
+                            }
+                            printd(D_DFS, "    dfs:  df rec sane %d\n", sane);
 
                             goto search_complete;
                         } else {
