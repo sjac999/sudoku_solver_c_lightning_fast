@@ -121,7 +121,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.75 2018/05/05 04:14:57 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.79 2018/05/11 07:57:36 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -611,6 +611,7 @@ game_init(game_t *game)
     game->game_flags = 0;
     game->max_num_recursion_levels = DEFAULT_MAX_NUM_RECURSION_LEVELS;
     game->initial_start_index = 0;
+    game->recurse_stats = NULL;
 
     /* Initialize the "map index to coordinates" lookup table */
     for (row=0; row < NUM_HORIZ_CELLS; row++) {
@@ -635,6 +636,9 @@ game_cleanup(game_t *game)
 
     if (game->filename) {
         free(game->filename);
+    }
+    if (game->recurse_stats) {
+        free(game->recurse_stats);
     }
 
     /*
@@ -679,6 +683,24 @@ cell_init(board_t *board, uint4 row, uint4 col)
     cell->row                 = row;
     cell->col                 = col;
     cell->square              = get_square_num(row, col);
+}
+
+/*
+ * Allocate and zero a recurse_stats_t structure.
+ */
+recurse_stats_t *
+alloc_init_game_stats(void)
+{
+    recurse_stats_t  *recurse_stats;
+
+    recurse_stats = malloc(sizeof(recurse_stats_t));
+    if (!recurse_stats) {
+        return (NULL);
+    }
+
+    memset(recurse_stats, 0, sizeof(recurse_stats_t));
+
+    return (recurse_stats);
 }
 
 /*
@@ -2604,19 +2626,13 @@ search_complete:
  *     - if the puzzle is not solved, but is sane, calls this function
  *       recursively
  *   - if we are out of guesses (out of undetermined cells to test),
- *     returns SOLVED_FAIL
+ *     returns rrs_no_more_cells
  */
-uint4
+enum recurse_return_status
 depth_first_process_board(game_t *game, board_t *board_orig,
                           board_t **board_ret,
-                          uint4 recursion_level,
-                          uint4 *sum_num_row_changes,
-                          uint4 *sum_num_col_changes,
-                          uint4 *sum_num_square_changes,
-                          uint4 *sum_num_tot_changes,
-                          uint4 *iterations,
-                          uint4 *sum_cells_tested,
-                          uint4 *sum_values_tested)
+                          recurse_stats_t *stats_ret,
+                          uint4 recursion_level)
 {
     board_t  *board_new;
     cell_t   *cell;
@@ -2628,23 +2644,24 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     uint4    df_tot_changes = 0;
     bool     solved = FALSE;;
     bool     sane = FALSE;;
-    bool     df_success = FALSE;;
     uint4    df_cells_tested = 0;
     uint4    df_values_tested = 0;
     bfnuc_state_t  bfnuc_state;
-
-    // Fixme:  Redundant at the moment.
-    *sum_cells_tested  = 0;
-    *sum_values_tested = 0;
+    enum recurse_return_status  df_status = rrs_initial_error;;
 
     // Fixme:  board_ret believed unused, unnecessary.
     *board_ret = NULL;
+
+    /* Record the maximum recursion depth in the stats structure */
+    if (recursion_level > stats_ret->max_recursion_levels) {
+        stats_ret->max_recursion_levels = recursion_level;
+    }
 
     recursion_level++;
 
     /* Limit the number of levels of recursion */
     if (recursion_level > game->max_num_recursion_levels) {
-        return (FALSE);
+        return (rrs_depth_error);
     }
 
     /*
@@ -2654,7 +2671,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      */
     board_new = malloc(sizeof(board_t));
     if (!board_new) {
-        return (1);
+        return (rrs_system_error);
     }
     board_copy(board_new, board_orig);
     board_set_pointers(board_orig, game, board_orig->prev, board_new);
@@ -2676,7 +2693,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      *       - if puzzle not solved, and not sane, continue
      *       - if puzzle not solved, but is sane, call this function
      *         recursively
-     *     - if no more undetermined cells, return SOLVED_FAIL
+     *     - if no more undetermined cells, return rrs_no_more_cells
      */
     do {
         cell = board_find_next_undetermined_cell(game, board_new, &bfnuc_state);
@@ -2688,7 +2705,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
             df_cells_tested++;
         } else {
             printd(D_DFS, "DFS:  cell not found, cells exhausted!\n");
-            df_success = FALSE;
+            df_status = rrs_no_more_cells;
 
             goto search_complete;
         }
@@ -2733,6 +2750,11 @@ depth_first_process_board(game_t *game, board_t *board_orig,
                     printd_board(D_DFS, board_new);
                 }
 
+                /*
+                 * Non-zero if process_board() was able to made changes,
+                 * meaning that it was able to make forward progress in
+                 * solving the puzzle.
+                 */
                 if (df_tot_changes) {
                     printd(D_DFS, "    dfs:  df tot_changes %d\n",
                        df_tot_changes);
@@ -2749,27 +2771,24 @@ depth_first_process_board(game_t *game, board_t *board_orig,
 
                     if (solved && sane) {
                         printd(D_DFS, "    DFS:  df SUCCESS!!!\n");
-                        df_success = TRUE;
+                        df_status = rrs_success;
                         /* Only update this on initial success */
                         game->board_curr = board_new;
 
                         goto search_complete;
                     } else if (sane) {
                         /*
-                         * recurse here
+                         * Sane but not solved:  Recurse here.
                          */
-// Fixme
-//printf(">>>>>>>> recurse %d! <<<<<<<<\n", recursion_level);
-                        df_success = depth_first_process_board(game,
-                            board_new, board_ret, recursion_level,
-                            sum_num_row_changes,
-                            sum_num_col_changes, sum_num_square_changes,
-                            sum_num_tot_changes, iterations,
-                            sum_cells_tested, sum_values_tested);
-                        if (df_success) {
-// Fixme
-printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
-    df_success);
+                        printd(D_DFS2, ">>>>>>>> recurse %d! <<<<<<<<\n",
+                          recursion_level);
+                        stats_ret->tot_num_recursions++;
+                        df_status = depth_first_process_board(game,
+                            board_new, board_ret, stats_ret, recursion_level);
+                        if (rrs_success == df_status) {
+                            printd(D_DFS2, ">>>>>>>> recurse return success "
+                              "%d! %d <<<<<<<<\n", recursion_level,
+                              df_status);
                             board_new = game->board_curr;
 
                             solved = board_is_solved(board_new);
@@ -2785,10 +2804,14 @@ printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
 
                             goto search_complete;
                         } else {
-// Fixme
-//printf(">>>>>>>> recurse return failure %d! %d <<<<<<<<\n", recursion_level,
-//    df_success);
+                            stats_ret->tot_num_backtracks++;
+                            //printd(D_DFS2, ">>>>>>>> recurse return failure "
+                            //  "%d! %d <<<<<<<<\n", recursion_level,
+                            //  df_status);
                         }
+                    } else {
+                        /* not sane, not solved */
+                        stats_ret->tot_num_not_sane++;
                     }
                 }
 
@@ -2802,8 +2825,9 @@ printf(">>>>>>>> recurse return success %d! %d <<<<<<<<\n", recursion_level,
      * We got here if:
      * - all undetermined cells have been tested, unsuccessfully, and we
      *   have no more undetermined cells to test
-     * - we were successful; by setting a value in a single undetermined
-     *   cell, we were able to generate a solved & sane solution
+     * - we were successful; by (recursively, once per level) setting a
+     *   value in an undetermined cell, we were able to generate a
+     *   solved & sane solution
      */
 search_complete:
     if (0 == game->dprint.silent_level) {
@@ -2821,18 +2845,20 @@ search_complete:
         printd_board(D_DFS, board_new);
     }
 
-    if (df_success) {
+    if (rrs_success == df_status) {
         /*
-         * On success, the current board became the new, freshly solved
-         * board.  All of the other pointers are already correct.
+         * On success, above, the current board of the game was set to be
+         * the new, freshly solved board.  All of the other board pointers
+         * are already correct.
+         * rrs_success means the board is solved, and sane.
          */
 
-        /* Add BFS-caused changes to the running totals kept by the game */
-        *sum_num_row_changes    += df_tot_num_row_changes;
-        *sum_num_col_changes    += df_tot_num_col_changes;
-        *sum_num_square_changes += df_tot_num_square_changes;
-        *sum_num_tot_changes    += df_tot_changes;
-        *iterations             += df_iterations;
+        /* Add DFS-caused changes to the running totals kept by the game */
+        stats_ret->sum_num_row_changes    += df_tot_num_row_changes;
+        stats_ret->sum_num_col_changes    += df_tot_num_col_changes;
+        stats_ret->sum_num_square_changes += df_tot_num_square_changes;
+        stats_ret->sum_num_tot_changes    += df_tot_changes;
+        stats_ret->iterations             += df_iterations;
     } else {
         /*
          * On failure, we need to free the new board and put the pointers
@@ -2844,11 +2870,11 @@ search_complete:
         free(board_new);
     }
 
-    /* Pass or fail, report BFS-specific changes to the caller */
-    *sum_cells_tested        += df_cells_tested;
-    *sum_values_tested       += df_values_tested;
+    /* Pass or fail, report DFS-specific changes to the caller */
+    stats_ret->sum_cells_tested  += df_cells_tested;
+    stats_ret->sum_values_tested += df_values_tested;
 
-    return (df_success);
+    return (df_status);
 }
 
 /*
@@ -2871,10 +2897,8 @@ main(int argc, char **argv)
     bool     do_bfs = FALSE;
     uint4    bfs_num_cells_tested = 0;
     uint4    bfs_num_values_tested = 0;
-    bool     dfs_success;
+    enum recurse_return_status     dfs_success;
     bool     do_dfs = FALSE;
-    uint4    dfs_num_cells_tested = 0;
-    uint4    dfs_num_values_tested = 0;
 
     /*
      * Initialize data structures
@@ -2962,26 +2986,32 @@ main(int argc, char **argv)
     }
 
     /*
-     * Only do a depth-first search with limited guessing if:
+     * Only do a depth-first search with generalized guessing if:
      *   - it was requested on the command line
      *   - the puzzle was not already solved, above
      */
-    dfs_success = FALSE;
+    dfs_success = rrs_initial_error;
     if ((REC_DESCENT & game->game_flags) && !(solved && sane)) {
         do_dfs = TRUE;
+        game->recurse_stats = alloc_init_game_stats();
         dfs_success = depth_first_process_board(game, game->board_curr,
-            &board_ret, 0, &tot_num_row_changes, &tot_num_col_changes,
-            &tot_num_square_changes, &tot_changes, &iterations,
-            &dfs_num_cells_tested, &dfs_num_values_tested);
+            &board_ret, game->recurse_stats, 0);
     }
 
-    if (dfs_success) {
+    /* rrs_success actually implies the board is solved, and sane */
+    if (rrs_success == dfs_success) {
         solved = board_is_solved(game->board_curr);
         if (solved) {
             sane = board_is_sane_solved(game->board_curr);
         } else {
             sane = board_is_sane_part_solved(game->board_curr);
         }
+        /* Add DFS-caused changes to the running totals kept by the game */
+        tot_num_row_changes    += game->recurse_stats->sum_num_row_changes;
+        tot_num_col_changes    += game->recurse_stats->sum_num_col_changes;
+        tot_num_square_changes += game->recurse_stats->sum_num_square_changes;
+        tot_changes            += game->recurse_stats->sum_num_tot_changes;
+        iterations             += game->recurse_stats->iterations;
     }
 
     if (REC_DESCENT & game->game_flags) {
@@ -3011,8 +3041,13 @@ main(int argc, char **argv)
                 bfs_num_cells_tested, bfs_num_values_tested);
         }
         if (do_dfs) {
-            printf("        dfs:  cells %u, values %u\n", 
-                dfs_num_cells_tested, dfs_num_values_tested);
+            printf("        dfs:  cells %u vals %u rec %u bt %u ns %u mrl %u\n",
+                game->recurse_stats->sum_cells_tested, 
+                game->recurse_stats->sum_values_tested,
+                game->recurse_stats->tot_num_recursions,
+                game->recurse_stats->tot_num_backtracks,
+                game->recurse_stats->tot_num_not_sane,
+                game->recurse_stats->max_recursion_levels);
         }
     }
 

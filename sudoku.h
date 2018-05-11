@@ -62,6 +62,7 @@ typedef unsigned long long         uint8;
 #define D_SERP                     0x00000020
 #define D_BFS                      0x00000100
 #define D_DFS                      0x00000200
+#define D_DFS2                     0x00000400
 
 /*
  * Defines for game->game_flags
@@ -78,6 +79,18 @@ typedef unsigned long long         uint8;
 #define DS_SUPER_SILENT            0x00000002
 
 
+/*
+ * depth_first_process_board() return status values
+ */
+enum recurse_return_status {
+    rrs_success       = 0,
+    rrs_system_error  = 1,
+    rrs_depth_error   = 2,
+    rrs_no_more_cells = 3,
+    rrs_initial_error = 4,
+};
+
+
 //#ifdef REMOVED
 
 /*
@@ -91,6 +104,23 @@ typedef struct dprint_ {
 } dprint_t;
 
 //#endif  /* REMOVED */
+
+/*
+ * Structure containing stats collected during recursion.
+ */
+typedef struct recurse_stats_ {
+    uint4     sum_num_row_changes;
+    uint4     sum_num_col_changes;
+    uint4     sum_num_square_changes;
+    uint4     sum_num_tot_changes;
+    uint4     iterations;
+    uint4     sum_cells_tested;
+    uint4     sum_values_tested;
+    uint4     max_recursion_levels;
+    uint4     tot_num_recursions;
+    uint4     tot_num_backtracks;
+    uint4     tot_num_not_sane;
+} recurse_stats_t;
 
 /*
  * Coordinate of one cell in a board
@@ -148,19 +178,21 @@ typedef struct game_ {
      *   board_head:  points to the head of a linked list of board_t structs.
      *   board_curr:  points to the current board_t struct.
      */
-    board_t   *board_head;
-    board_t   *board_curr;
+    board_t          *board_head;
+    board_t          *board_curr;
     /* malloced copy of the puzzle file name */
-    char      *filename;
+    char             *filename;
     /* Debug print information */
-    dprint_t  dprint;
-    uint4     game_flags;
+    dprint_t         dprint;
+    uint4            game_flags;
     /* Limits depth of recursion in depth-first recursion function */
-    uint4     max_num_recursion_levels;
+    uint4            max_num_recursion_levels;
     /* Initial cell index at which to start searching the board */
-    uint4     initial_start_index;
+    uint4            initial_start_index;
+    /* Stats structure passed for depth-first recursion */
+    recurse_stats_t  *recurse_stats;
     /* Array of coordinates of each cell in a board */
-    coord_t   coord[TOT_NUM_CELLS];
+    coord_t          coord[TOT_NUM_CELLS];
 } game_t;
 
 

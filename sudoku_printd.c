@@ -25,7 +25,7 @@ printd_init(dprint_t *dprint, char *log_filename)
     dprint->log_filename = log_filename;
     dprint->log_fd       = NULL;
     // Fixme:  Magic number.  Disables most assigned debug flags.
-    dprint->flags        = 0xff00fcc0;
+    dprint->flags        = 0xff00f8c0;
     dprint->silent_level = 0;
 
     if (dprint->log_filename) {
