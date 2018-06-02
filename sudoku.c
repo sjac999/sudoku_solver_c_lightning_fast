@@ -7,13 +7,20 @@
  */
 
 /*
- * A standard Sudoku game contains 9x9 = 81 cells, each of which can
- * contain one value (number).  In a 9x9 game, the value can be one of
- * 1 - 9, inclusive.
+ * A standard Sudoku board contains 9 x 9 = 81 cells.  After the board is
+ * solved, each cell can contain exactly one value (number).  In a 9 x 9
+ * board, that value can be one of 1 - 9, inclusive.
+ *
  * A determined cell represents (contains) exactly one value.
  * An undetermined cell can contain one of up to 9 possible values.
- * Each cell appears in exactly three dimensions, a row, a column and
+ * Before a board is solved, the board contains a mix of determined and
+ * undetermined cells.  After solution, the board must contain all
+ * determined cells.
+ *
+ * Each cell exists in exactly three dimensions; a row, a column and
  * a square.  Each dimension in a standard game contains 9 cells.
+ *
+ * Here is a summary of the algorithms used by the algorithmic solver:
  *
  * Cannot be analysis:  Within a dimension, there may be one or more
  *     determined cells, each containing one specific value.  Those
@@ -121,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.79 2018/05/11 07:57:36 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.80 2018/06/02 23:19:09 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1950,7 +1957,7 @@ modified_tuple_analysis(cell_t *test_cells[DIMENSION_SIZE], uint4 dimension)
 }
 
 /*
- * All serpentines (for the time being) have exactly three cells involved.
+ * All serpentines (for the time being) involve exactly three cells.
  * The sums of the bitmasks for those three cells will have exactly
  *   three values set. 
  * Those three values will all be two or higher.
