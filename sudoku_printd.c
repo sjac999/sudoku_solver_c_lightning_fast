@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #include "sudoku.h"
+#include "sudoku_print.h"
 #include "sudoku_printd.h"
 
 /*
@@ -105,9 +106,16 @@ printd_cell_cell_vals(uint4 flags, cell_t *cell)
 void
 printd_cell_cell(uint4 flags, cell_t *cell)
 {
+    if (!(flags & g_dprint->flags)) {
+        return;
+    }
+    print_cell_cell(cell);
+
+#ifdef REMOVED
     printd(flags, " ");
     printd_cell_cell_vals(flags, cell);
     printd(flags, " |");
+#endif
 }
 
 /*
@@ -117,11 +125,18 @@ printd_cell_cell(uint4 flags, cell_t *cell)
 void
 printd_cell(uint4 flags, board_t *board, uint4 row, uint4 col)
 {
+    if (!(flags & g_dprint->flags)) {
+        return;
+    }
+    print_cell(board, row, col);
+
+#ifdef REMOVED
     cell_t    *cell;
 
     cell = &board->x_y_board[row][col];
 
     printd_cell_cell(flags, cell);
+#endif
 }
 
 /*
@@ -130,6 +145,12 @@ printd_cell(uint4 flags, board_t *board, uint4 row, uint4 col)
 void
 printd_board(uint4 flags, board_t *board)
 {
+    if (!(flags & g_dprint->flags)) {
+        return;
+    }
+    print_board(board);
+
+#ifdef REMOVED
     uint4    row, col;
 
     printd(flags, "=======================================================");
@@ -147,6 +168,7 @@ printd_board(uint4 flags, board_t *board)
                 "======================================================\n");
         }
     }
+#endif
 }
 
 /*
@@ -156,6 +178,12 @@ printd_board(uint4 flags, board_t *board)
 void
 printd_dimension(uint4 flags, cell_t *cells[DIMENSION_SIZE])
 {
+    if (!(flags & g_dprint->flags)) {
+        return;
+    }
+    print_dimension(cells);
+
+#ifdef REMOVED
     uint4    i;
 
     printd(flags, "|");
@@ -163,5 +191,6 @@ printd_dimension(uint4 flags, cell_t *cells[DIMENSION_SIZE])
         printd_cell_cell(flags, cells[i]);
     }
     printd(flags, "\n");
+#endif
 }
 

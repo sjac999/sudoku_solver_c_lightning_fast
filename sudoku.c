@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.80 2018/06/02 23:19:09 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.81 2018/06/04 01:29:30 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -139,6 +139,7 @@ static const char rcsid[]="$Id: sudoku.c,v 1.80 2018/06/02 23:19:09 stevej Exp $
 
 #include "sudoku.h"
 #include "sudoku_io.h"
+#include "sudoku_print.h"
 #include "sudoku_printd.h"
 
 
@@ -160,6 +161,7 @@ void board_set_pointers(board_t *board, game_t *game, board_t *prev,
 bool cell_value_set(cell_t *cell, uint4 value);
 
 
+#ifdef REMOVED
 /*
  * Print the numerical representation of each TRUE value in a
  * values array.  This array is as that contained in a cell_t.
@@ -217,6 +219,22 @@ print_cell(board_t *board, uint4 row, uint4 col)
 }
 
 /*
+ * Print a representation of a single dimension
+ * Fixme:  Could be used in print_board()
+ */
+void
+print_dimension(cell_t *cells[DIMENSION_SIZE])
+{
+    uint4    i;
+
+    printf("|");
+    for (i=0; i < DIMENSION_SIZE; i++) {
+        print_cell_cell(cells[i]);
+    }
+    printf("\n");
+}
+
+/*
  * Print a representation of an entire game board.
  */
 void
@@ -238,6 +256,7 @@ print_board(board_t *board)
         }
     }
 }
+#endif  /* REMOVED */
 
 /*
  * The board is solved if every cell in the game has exactly one
@@ -604,9 +623,6 @@ game_init(game_t *game)
     uint4    row, col;
     uint4    i = 0;
 
-    /*
-     * Fixme:  May be insufficient once recursive descent is implemented.
-     */
     game->board_head = malloc(sizeof(board_t));
     if (!game->board_head) {
         return (NULL);
@@ -911,6 +927,7 @@ board_copy_preserve_pointers(board_t *board_dst, board_t *board_src)
 
 /*
  * Print the cell coordinates for all cells in a board.
+ * For code development debug only.
  */
 void
 print_cell_coordinates(board_t *board)
@@ -2033,6 +2050,18 @@ serpentine_analysis(cell_t *test_cells[DIMENSION_SIZE])
     }
 
 #ifdef REMOVED
+// Fixme
+// Fixme:  For code development debug only.
+// Fixme
+    if (cell_count_23 > 3) {
+        //printd(D_SERP, "*** %s:  cell_count_23 %u\n",
+        printf("*** %s:  cell_count_23 %u\n",
+            __func__, cell_count_23);
+        //printd_dimension(D_SERP, test_cells);
+        printd_dimension(D_CRIT, test_cells);
+    }
+#endif
+#ifdef REMOVED
     if (cell_count_23 == 3) {
         printd(D_SERP, "*** %s:  cell_count_23 %u\n",
             __func__, cell_count_23);
@@ -2043,6 +2072,8 @@ serpentine_analysis(cell_t *test_cells[DIMENSION_SIZE])
     /*
      * This serpentine analysis requires exactly 3 cells, each containing
      * 2 or 3 values.
+     * Fixme:  This is unduly restrictive.  It makes the algorithm simpler,
+     * though.  If > 3, could iterate through subsets of 3.
      */
     if (3 != cell_count_23) {
         unmark_all_cells(test_cells);
