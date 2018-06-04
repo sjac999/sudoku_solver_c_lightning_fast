@@ -332,7 +332,7 @@ stevej@bsd84:~/sudoku %
 Specifying both breadth-first and recursive descent searches:
 -------------------------------------------------------------
 
-Both breadth-first ("-b") and recursive descent ("-d") searches can be
+Both breadth-first ("-b") and recursive descent ("-r") searches can be
 requested on the same command line.  This results in a hierarchy of
 possible testing:
 
@@ -368,7 +368,7 @@ stevej@bsd84:~/sudoku %
 Specifying a starting cell index when running:
 ----------------------------------------------
 
-The "-i <number>" and "-I" options apply to both recursive descent ("-d")
+The "-i <number>" and "-I" options apply to both recursive descent ("-r")
 and breadth-first search ("-b").  These options have been shown to be
 useful when solving certain difficult puzzles with recursive descent.
 They have not proven useful so far with breadth-first search.
