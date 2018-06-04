@@ -329,6 +329,42 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 2
 stevej@bsd84:~/sudoku %
 
 
+Specifying both breadth-first and recursive descent searches:
+-------------------------------------------------------------
+
+Both breadth-first (-b) and recursive descent (-r) searches can be
+requested on the same command line.  This results in a hierarchy of
+possible testing:
+
+If the algorithmic solver is able to solve the puzzle, then neither
+breadth-first nor recursive descent testing is performed.
+
+If the algorithmic solver fails to solve the puzzle, then breadth-first
+testing is attempted.  If breadth-first testing succeeds in solving the
+puzzle, then recursive descent testing is not done.
+
+If both the algorithmic solver and breadth-first testing fail to solve
+the puzzle, then recursive descent testing is performed.
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-1.txt -s 2 -b -r -D 20
+>>>>>> ./puzzles1/l3-1.txt solved, sane!
+    Iterations:  10.  Changes:  Rows 189, cols 179, squares 88, tot 456
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b -r -D 20
+>>>>>> ./puzzles1/l4-1.txt solved, sane!
+    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+        bfs:  cells 2, values 3
+stevej@bsd84:~/sudoku %
+
+stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b -r -D 20
+>>>>>> ./puzzles_test1/l4-27.test2.txt solved, sane!
+    Iterations:  44.  Changes:  Rows 175, cols 227, squares 103, tot 505
+        bfs:  cells 67, values 382
+        dfs:  cells 16 vals 17 rec 15 bt 0 ns 1 mrl 15
+stevej@bsd84:~/sudoku %
+
+
 Specifying a starting cell index when running:
 ----------------------------------------------
 
