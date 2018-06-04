@@ -2,15 +2,15 @@
 Sudoku Solver Program in C:  Lightning Fast
 ===========================================
 Steve Jacobson
-June 03, 2018
+June 04, 2018
 
 
 Introduction:
 -------------
 
 This program is a Sudoku puzzle solver written in C.  It uses repetitive
-application of algorithms to arrive at a solution, very much as a human
-does.  Because of this approach, it is many orders of magnitude faster
+application of algorithms to arrive at a solution, very much as does a
+human.  Because of this approach, it is many orders of magnitude faster
 than programs relying on brute-force guessing.
 
 The sudoku program reads the puzzle to be solved from an ASCII file, an
@@ -36,9 +36,9 @@ example of which is below.  This is ./puzzles1/l3-5.txt.
 The format is a fairly visual representation of a printed puzzle; the data
 lines are in a mandatory rigid format.  "#" prefaces an optional comment
 line, the entirety of which is disregarded by the program.  Commas and
-spaces are separators, which must appear as shown.  "." represents a cell
-which has no value specified.  Integers 0-9 represent cells with initially
-specified values.
+spaces in data lines are separators, and must appear as shown.  "."
+represents a cell which has no value specified.  Integers 0-9 represent
+cells with initially specified values.
 
 Note:  Setting the window width to 110 columns works best when running 
 the sudoku program (and when reading this file).
@@ -84,7 +84,7 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
 
 "-s 1" specifies the level of silence (the opposite of verbocity).
 "-s 0" prints more chatter about the algorithms solving the puzzle than
-most users will care about.  "-s 1" prints the starting and ending states
+will interest most users.  "-s 1" prints the starting and ending states
 of the puzzle, followed by a summary of the solution.  In this case the
 program determined that the puzzle was actually solved, and verified that
 the solution was actually sane.
@@ -273,13 +273,13 @@ Running the program, advanced use:
 ----------------------------------
 
 So far, all newspaper and Internet-available puzzles tested have been
-solved by the algorithms alone, or by the algorithms + breadth-first search.
-However, more complicated puzzles can be contrived; they can be solved
-with the recursive descent feature.  It must be used with caution, however,
-as the amount of computation can grow exponentially with number of levels
-of recursion; it depends entirely on the puzzle.  Solutions have been
-measured as taking from milliseconds to days, with the possibility of
-taking weeks, months or years.
+solved by the algorithmic solver alone, or by the algorithms + breadth-first
+search.  However, more complicated puzzles can be contrived; they can be
+solved with the recursive descent feature.  It must be used with caution,
+however, as the amount of computation can grow exponentially with the
+number of levels of recursion; it depends entirely on the puzzle.
+Solutions have been measured as taking from milliseconds to days, with the
+possibility of taking weeks, months or years.
 
 The following program invocations test variants of l4-27.txt, from
 which some of the specified values have been removed.
@@ -332,7 +332,7 @@ stevej@bsd84:~/sudoku %
 Specifying both breadth-first and recursive descent searches:
 -------------------------------------------------------------
 
-Both breadth-first (-b) and recursive descent (-r) searches can be
+Both breadth-first ("-b") and recursive descent ("-d") searches can be
 requested on the same command line.  This results in a hierarchy of
 possible testing:
 
