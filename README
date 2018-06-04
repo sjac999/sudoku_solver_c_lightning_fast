@@ -2,7 +2,7 @@
 Sudoku Solver Program in C:  Lightning Fast
 ===========================================
 Steve Jacobson
-April 28, 2018
+June 03, 2018
 
 
 Introduction:
@@ -11,7 +11,7 @@ Introduction:
 This program is a Sudoku puzzle solver written in C.  It uses repetitive
 application of algorithms to arrive at a solution, very much as a human
 does.  Because of this approach, it is many orders of magnitude faster
-than programs that rely on brute-force guessing.
+than programs relying on brute-force guessing.
 
 The sudoku program reads the puzzle to be solved from an ASCII file, an
 example of which is below.  This is ./puzzles1/l3-5.txt.
@@ -33,12 +33,12 @@ example of which is below.  This is ./puzzles1/l3-5.txt.
 7,.,., .,.,9, .,.,2
 .,.,., 5,7,., .,.,.
 
-The format is a visual representation of a printed puzzle, in a mandatory
-rigid format.  "#" prefaces an optional comment line, the entirety of which
-is disregarded by the program.  Commas and spaces are separators, which
-must appear as shown.
-"." represents a cell with no value specified.  Integers 0-9 represent
-cells with initially specified values.
+The format is a fairly visual representation of a printed puzzle; the data
+lines are in a mandatory rigid format.  "#" prefaces an optional comment
+line, the entirety of which is disregarded by the program.  Commas and
+spaces are separators, which must appear as shown.  "." represents a cell
+which has no value specified.  Integers 0-9 represent cells with initially
+specified values.
 
 Note:  Setting the window width to 110 columns works best when running 
 the sudoku program (and when reading this file).
@@ -82,7 +82,7 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
 
 "-f ./puzzles1/l3-5.txt" specifies the puzzle file to be solved.
 
-"-s 1" specifies the level of silence (the absence of verbocity).
+"-s 1" specifies the level of silence (the opposite of verbocity).
 "-s 0" prints more chatter about the algorithms solving the puzzle than
 most users will care about.  "-s 1" prints the starting and ending states
 of the puzzle, followed by a summary of the solution.  In this case the
@@ -169,7 +169,7 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
 stevej@bsd84:~/sudoku %
 
 "-s 3" prints nothing.  It is useful only for scripting, which can rely
-on the status value returned by the program.
+on the status value returned when the program completes.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
 stevej@bsd84:~/sudoku %
@@ -272,15 +272,16 @@ stevej@bsd84:~/sudoku %
 Running the program, advanced use:
 ----------------------------------
 
-So far, all newspaper puzzles tested have been solved by the algorithms,
-or by the algorithms + breadth-first search.  However, more complicated
-puzzles can be solved with the recursive descent feature.  It must be
-used with caution, however, as the amount of computation can grow
-exponentially with number of levels of recursion; it all depends on the
-puzzle.  Solutions have been measured as taking from milliseconds to
-days, with the possibility of taking weeks, months or years.
+So far, all newspaper and Internet-available puzzles tested have been
+solved by the algorithms alone, or by the algorithms + breadth-first search.
+However, more complicated puzzles can be contrived; they can be solved
+with the recursive descent feature.  It must be used with caution, however,
+as the amount of computation can grow exponentially with number of levels
+of recursion; it depends entirely on the puzzle.  Solutions have been
+measured as taking from milliseconds to days, with the possibility of
+taking weeks, months or years.
 
-The following program invocations involve variants of l4-27.txt, from
+The following program invocations test variants of l4-27.txt, from
 which some of the specified values have been removed.
 
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
@@ -305,7 +306,7 @@ stevej@bsd84:~/sudoku %
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
 >>>>>> ./puzzles_test1/l4-27.test1.txt solved, sane!
     Iterations:  17.  Changes:  Rows 184, cols 166, squares 93, tot 443
-        dfs:  cells 4, values 4
+        dfs:  cells 4 vals 4 rec 3 bt 0 ns 0 mrl 3
 stevej@bsd84:~/sudoku %
 
 With the more difficult "l4-27.test2.txt" puzzle:
@@ -324,7 +325,7 @@ stevej@bsd84:~/sudoku %
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 20
 >>>>>> ./puzzles_test1/l4-27.test2.txt solved, sane!
     Iterations:  44.  Changes:  Rows 175, cols 227, squares 103, tot 505
-        dfs:  cells 16, values 17
+        dfs:  cells 16 vals 17 rec 15 bt 0 ns 1 mrl 15
 stevej@bsd84:~/sudoku %
 
 
@@ -367,8 +368,8 @@ so it was halted with ctrl-C.
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
 >>>>>> ./puzzles1/l4-19.txt solved, sane!
     Iterations:  12.  Changes:  Rows 186, cols 166, squares 106, tot 458
-        dfs:  cells 2, values 7
-stevej@bsd84:~/sudoku % 
+        dfs:  cells 2 vals 7 rec 1 bt 0 ns 5 mrl 1
+stevej@bsd84:~/sudoku %
 
 The invocation above completed immediately as a result of adding "-i 41".
 Note that some experimentation was needed to find a value (41) leading to
@@ -380,8 +381,8 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 ^C
 stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 >>>>>> ./puzzles1/l4-19.txt solved, sane!
-    Iterations:  14.  Changes:  Rows 194, cols 164, squares 101, tot 459
-        dfs:  cells 2, values 3
+    Iterations:  14.  Changes:  Rows 193, cols 167, squares 100, tot 460
+        dfs:  cells 3 vals 3 rec 2 bt 0 ns 0 mrl 2
 stevej@bsd84:~/sudoku %
 
 Using "-I", the program had to be invoked three times (in this particular
