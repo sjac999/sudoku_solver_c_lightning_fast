@@ -4,7 +4,7 @@
 
 # gcc for Linux, cc for FreeBSD
 CC	= cc
-# Runs about twice as fast with -O4
+# Runs 2 to 3 as fast with -O3
 CFLAGS	= -Wall -O0 -g
 
 all:
