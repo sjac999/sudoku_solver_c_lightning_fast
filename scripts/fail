@@ -308,3 +308,18 @@ $SUDOKU $FLAGS -f $PDIR/l4-74.txt
 $SUDOKU $FLAGS -f $PDIR/l4-75.txt
 $SUDOKU $FLAGS -f $PDIR/l4-76.txt
 
+# Algorithmic solver cannot fully solve at this time, 06/01/18.
+$SUDOKU $FLAGS -f $PDIR/un-1.txt
+$SUDOKU $FLAGS -f $PDIR/un-2.txt
+$SUDOKU $FLAGS -f $PDIR/un-3.txt
+$SUDOKU $FLAGS -f $PDIR/un-4.txt
+$SUDOKU $FLAGS -f $PDIR/un-5.txt
+$SUDOKU $FLAGS -f $PDIR/un-6.txt
+$SUDOKU $FLAGS -f $PDIR/un-7.txt
+$SUDOKU $FLAGS -f $PDIR/un-8.txt
+$SUDOKU $FLAGS -f $PDIR/un-9.txt
+$SUDOKU $FLAGS -f $PDIR/un-10.txt
+$SUDOKU $FLAGS -f $PDIR/es-1.txt
+$SUDOKU $FLAGS -f $PDIR/ink-1.txt
+$SUDOKU $FLAGS -f $PDIR/lvl3-1.txt
+
