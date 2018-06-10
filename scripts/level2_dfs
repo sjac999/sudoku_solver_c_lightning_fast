@@ -1,0 +1,17 @@
+#!/bin/sh
+
+SUDOKU="../sudoku"
+FLAGS="-r -D 2 -s 2"
+PDIR="../puzzles1"
+
+#
+# Solved using two levels of DFS.  These puzzles
+# require two levels of guessing with the current
+# algorithmic solver.
+#
+for PNAME in                                          \
+	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1
+do
+	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
