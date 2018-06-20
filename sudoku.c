@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.81 2018/06/04 01:29:30 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.88 2018/06/20 05:21:54 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -2131,11 +2131,6 @@ serpentine_analysis(cell_t *test_cells[DIMENSION_SIZE])
 
         return(0);
     }
-#ifdef REMOVED
-    if (3 == val_count_2) {
-        printd(D_SERP, "    Perfect serpentine!\n");
-    }
-#endif
 
     // Fixme
     if (cell_count_23 == 3) {
@@ -2164,6 +2159,503 @@ serpentine_analysis(cell_t *test_cells[DIMENSION_SIZE])
     }
 
     unmark_all_cells(test_cells);
+
+    return (num_changes);
+}
+
+/*
+ * Test the marked cells in the cell_ptrs[] array, and determine if they
+ * constitute a serpentine.  If so, clear the values those cells represent
+ * from the balance of the cells in the dimension.
+ *
+ * test_cells:    Array of all cell pointers in the dimension.
+ * cell_ptrs:     Array of cell pointers of interest from the dimension.
+ * cell_count:    Number of valid cells in cell_ptrs array.
+ * choose_count:  Number of cells to choose from cell_ptrs array.
+ *                - this number of cells must be marked
+ */
+uint4
+new_serpentine_helper(cell_t *test_cells[DIMENSION_SIZE],
+                      cell_t *cell_ptrs[DIMENSION_SIZE], uint4 cell_count,
+                      uint4 choose_count)
+{
+    uint4     cell_index;
+    uint4     val_index;
+    cell_t    *cell;
+    uint4     vals[DIMENSION_SIZE] = { 0 };
+    uint4     num_changes = 0;
+    /* number of values in marked cells occuring 2, 3 or 4 times */
+    uint4     val_count_234 = 0;
+    /* number of values in marked cells occuring 2 or 3 times */
+    uint4     val_count_23 = 0;
+    /* number of values in marked cells occuring 0 times */
+    uint4     val_count_0 = 0;
+
+    /*
+     * For each cell in the cell_ptrs[] array, sum the occurrences of
+     * all values they represent.
+     */
+    for (cell_index=0; cell_index < cell_count; cell_index++) {
+        cell = cell_ptrs[cell_index];
+        if (cell_is_marked(cell)) {
+            for (val_index=0; val_index < DIMENSION_SIZE; val_index++) {
+                if (cell->values[val_index]) {
+                    vals[val_index]++;
+                }
+            }
+        }
+    }
+
+    /*
+     * This serpentine analysis requires exactly "choose_count" values
+     * (currently 3 or 4) to be represented.  Each must be represented:
+     *   choose_count == 3:   2 or 3 times
+     *   choose_count == 4:   2, 3 or 4 times
+     * All remaining values must not be represented at all.
+     */
+    for (val_index=0; val_index < DIMENSION_SIZE; val_index++) {
+        /* number of values not represented */
+        if (0 == vals[val_index]) {
+            val_count_0++;
+        }
+        if ((2 == vals[val_index]) || (3 == vals[val_index])) {
+            val_count_23++;
+        }
+        if ((1 < vals[val_index]) && (5 > vals[val_index])) {
+            val_count_234++;
+        }
+    }
+
+#ifdef REMOVED
+    printd(D_SERP, "    vc0 %u vc23 %u vc234 %u\n",
+        val_count_0, val_count_23, val_count_234);
+#endif
+
+    /*
+     * Number of values not represented.
+     * - choose_count 3:  val_count_0 must be exactly 6 for 9 cell dimension
+     * - choose_count 4:  val_count_0 must be exactly 5 for 9 cell dimension
+     */
+    if ((DIMENSION_SIZE - choose_count) != val_count_0) {
+        return(0);
+    }
+
+    switch (choose_count) {
+    case 3:
+        if ((val_count_23 < 2) || (val_count_23 > 3)) {
+            return(0);
+        }
+        break;
+    case 4:
+        /*
+         * Four values must be represented 2, 3, or 4 times each.
+         * Note:  If we have four values represented 2 times each,
+         * we have one of two scenarios:
+         * - AB AB CD CD  pointless to pursue, but harmless
+         *                - pairs that are mutually exclusive
+         * - AB BC CD DA  must clear these values from other cells.
+         */
+        if ((val_count_234 < 2) || (val_count_234 > 4)) {
+            return(0);
+        }
+        break;
+    default:
+        break;
+    }
+
+    printd(D_SERP, "*** %s:  cell_count %u choose_count %u\n",
+        __func__, cell_count, choose_count);
+    printd_dimension(D_SERP, test_cells);
+
+    /*
+     * We can clear the values represented by the cells in the serpentine
+     * from the balance of the cells (unmarked cells) in the dimension.
+     */
+    for (val_index=0; val_index < DIMENSION_SIZE; val_index++) {
+        if (vals[val_index]) {
+            num_changes += clear_values_in_unmarked_cells(test_cells,
+                val_index);
+        }
+    }
+
+    if (num_changes) {
+        printd(D_SERP, "*** %s:  cell_count %u choose_count %u\n",
+            __func__, cell_count, choose_count);
+        printd_dimension(D_SERP, test_cells);
+        printd(D_SERP, "    Cleared %d values! vc0 %u vc23 %u vc234 %u\n",
+            num_changes, val_count_0, val_count_23, val_count_234);
+    }
+
+    return (num_changes);
+}
+
+#define MASK_3_3_NUM_BITS		3
+#define MASK_3_3_NUM_BITMASKS		1
+
+/* 3 choose 3 bitmask:  111 */
+static uint4 mask_3_3[MASK_3_3_NUM_BITMASKS] = 
+                       { 0x7 };
+
+#define MASK_4_3_NUM_BITS		4
+#define MASK_4_3_NUM_BITMASKS		4
+
+/* 4 choose 3 bitmask:  1110 1101 1011 0111 */
+static uint4 mask_4_3[MASK_4_3_NUM_BITMASKS] =
+                       { 0xe, 0xd, 0xb, 0x7 };
+
+#define MASK_5_3_NUM_BITS		5
+#define MASK_5_3_NUM_BITMASKS		10
+
+/*
+ * 5 choose 3 bitmask:  11100 11010 10110 01110
+ *                      11001 10101 01101
+ *                      10011 01011
+ *                      00111
+ */
+static uint4 mask_5_3[MASK_5_3_NUM_BITMASKS] =
+                       { 0x1c, 0x1a, 0x16, 0x0e,
+                         0x19, 0x15, 0x0d,
+                         0x13, 0x0b,
+                         0x07 };
+
+#define MASK_4_4_NUM_BITS		4
+#define MASK_4_4_NUM_BITMASKS		1
+
+/* 4 choose 4 bitmask:  1111 */
+static uint4 mask_4_4[MASK_4_4_NUM_BITMASKS] = 
+                       { 0xf };
+
+#define MASK_5_4_NUM_BITS		5
+#define MASK_5_4_NUM_BITMASKS		5
+
+/* 4 choose 4 bitmask:  01111 10111 11011 11101 11110 */
+static uint4 mask_5_4[MASK_5_4_NUM_BITMASKS] = 
+                       { 0x0f, 0x17, 0x1b, 0x1d, 0x1e };
+
+/*
+ * Performs serpentine analysis on (M choose N) subsets of the selected cells
+ * in a dimension.
+ *
+ * test_cells:  an array of pointers to all of the cells in the
+ *       dimension of interest
+ *       - all DIMENSION_SIZE number of cells in the dimension
+ * cell_ptrs:  an array of pointers to the "cell_count" number of
+ *       cells that the caller wants us to test for serpentines
+ *       - this is a subset of the cells in the dimension
+ * cell_count:  The M of (M choose N)
+ *       - the number of cells in the cell_ptrs array
+ * choose_count:  The N of (M choose N)
+ *       - the size of the sets of cells to test
+ *       - less than or equal to cell_count
+ */
+uint4
+new_serpentine_combinations_analysis(cell_t *test_cells[DIMENSION_SIZE],
+                                     cell_t *cell_ptrs[DIMENSION_SIZE],
+                                     uint4 cell_count, uint4 choose_count)
+{
+    uint4     num_changes;
+    uint4     num_bits;
+    uint4     num_bitmasks;
+    uint4     bitmask;
+    uint4     nbm;
+    uint4     nb;
+    uint4     *bitmask_arr;
+
+    switch (choose_count) {
+    case 3:
+        /* (3 choose 3), (4 choose 3), (5 choose 3) */
+        switch (cell_count) {
+        case 3:
+            bitmask_arr  = mask_3_3;
+            num_bits     = MASK_3_3_NUM_BITS;
+            num_bitmasks = MASK_3_3_NUM_BITMASKS;
+            break;
+        case 4:
+            bitmask_arr  = mask_4_3;
+            num_bits     = MASK_4_3_NUM_BITS;
+            num_bitmasks = MASK_4_3_NUM_BITMASKS;
+            break;
+        case 5:
+            bitmask_arr  = mask_5_3;
+            num_bits     = MASK_5_3_NUM_BITS;
+            num_bitmasks = MASK_5_3_NUM_BITMASKS;
+            break;
+        default:
+            printd(D_SERP, "<<<<<< cell count error choose %d count %d\n",
+                choose_count, cell_count);
+
+            return (0);
+        }
+        break;
+    case 4:
+        /* (4 choose 4), (5 choose 4) */
+        switch (cell_count) {
+        case 4:
+            bitmask_arr  = mask_4_4;
+            num_bits     = MASK_4_4_NUM_BITS;
+            num_bitmasks = MASK_4_4_NUM_BITMASKS;
+            break;
+        case 5:
+            bitmask_arr  = mask_5_4;
+            num_bits     = MASK_5_4_NUM_BITS;
+            num_bitmasks = MASK_5_4_NUM_BITMASKS;
+            break;
+        default:
+            printd(D_SERP, "<<<<<< cell count error choose %d count %d\n",
+                choose_count, cell_count);
+
+            return (0);
+        }
+        break;
+    default:
+        printf("<<<<<< choose count error choose %d count %d\n",
+            choose_count, cell_count);
+
+        return (0);
+    }
+
+    /*
+     * The caller passed in "choose_count and "cell_count".
+     * Here we implement the (M choose N) (actually "cell_count" choose
+     * "choose_count") subsets of cells from the dimension.  We mark N
+     * cells in the M cell subset from the dimension, and call
+     * new_serpentine_helper().
+     * 
+     * The helper function determines if the N
+     * cells constitute a serpentine; if so, it can clear all values
+     * represented by the N cells from the balance of the cells in the
+     * dimension.
+     * 
+     * nbm:  number of bit masks
+     *       - also the number of permutations
+     * nb:   number of bits
+     *       - also the number of cells to choose
+     *       - also "choose_count"
+     *       - also "N" in the comment above
+     * cell_ptrs:  an array of pointers to the M (choose_count) number of
+     *       cells that the caller wants us to test for serpentines
+     *       - this is a subset of the dimension
+     * test_cells:  an array of pointers to all of the cells in the
+     *       dimension of interest
+     *       - all DIMENSION_SIZE number of cells in the dimension
+     */
+    for (nbm=0; nbm < num_bitmasks; nbm++) {
+        bitmask = bitmask_arr[nbm];
+        for (nb=0; nb < num_bits; nb++) {
+            if (bitmask & 0x1) {
+                mark_cell(cell_ptrs[nb]);
+            }
+            bitmask = bitmask >> 1;
+        }
+        num_changes = new_serpentine_helper(test_cells, cell_ptrs,
+          cell_count, choose_count);
+
+        // Fixme:  We are responsible for unmarking cells.
+        //unmark_all_cells_array(array, num_cells);
+        unmark_all_cells(test_cells);
+
+        /*
+         * If the helper function cleared any values, we stop working on this
+         * dimension.  We don't want to continue once things have changed.
+         * The caller can call us again if they want to make another attempt.
+         */
+        if (num_changes) {
+            printd(D_SERP, "<<<<<< nbm %d n_bm %d mask 0x%x\n",
+                nbm, num_bitmasks, bitmask_arr[nbm]);
+
+            return (num_changes);
+        }
+    }
+
+    return (0);
+}
+
+/*
+ * Choose a set of the form (M choose N) from the cells in the provided
+ * dimension.  The set will be all of the cells representing (2 through N)
+ * different values, where N is "choose_count."  We take no further
+ * action if the set does not contain at least two cells.
+ */
+uint4
+new_serpentine_m_choose_n_analysis(cell_t *test_cells[DIMENSION_SIZE],
+                                   uint4 choose_count)
+{
+    uint4     cell_index;
+    uint4     num_changes;
+    /* # of cells representing (2 through "choose_count") values, inclusive */
+    uint4     cell_count = 0;
+    cell_t    *cell_ptrs[DIMENSION_SIZE] = { 0 };
+    cell_t    *cell;
+
+    /*
+     * Record the number of cells representing 2 through "choose_count"
+     * values, inclusive.  Store pointers to each of those cells in
+     * cell_ptrs[].
+     */
+    for (cell_index=0; cell_index < DIMENSION_SIZE; cell_index++) {
+        cell = test_cells[cell_index];
+        if (cell->num_possible_values < 2 ||
+          cell->num_possible_values > choose_count) {
+            continue;
+        }
+        cell_ptrs[cell_count] = cell;
+        cell_count++;
+    }
+
+    /*
+     * We are testing all ("cell_count" choose "choose_count") permutations
+     * of the cells discovered above.  This makes no sense for
+     * (cell_count < choose_count).
+     */
+    if (choose_count > cell_count) {
+        return (0);
+    }
+
+    /*
+     * Perform serpentine analysis on all the (M choose N) [actually
+     * ("cell_count" choose "chose_count")] subsets of the
+     * cells pointed to by the cell_ptrs array.
+     */
+    num_changes = new_serpentine_combinations_analysis(test_cells, cell_ptrs,
+      cell_count, choose_count);
+
+    return (num_changes);
+}
+
+/*
+ * All serpentines (at this time) involve exactly three cells, or
+ * exactly four cells.
+ * Those serpentines can be chosen from a larger number of cells, if a
+ * larger number of cells is found in a dimension that meets the criteria.
+ * 
+ * Currently, (5 choose 4), (4 choose 4), (5 choose 3), (4 choose 3) and
+ * (3 choose 3) are implemented.  This means that all subsets are tested
+ * in turn.  Using (4 choose 3) as an example, all four unordered sets of
+ * three will be chosen from the eligible set of four, then tested for
+ * serpentine properties.
+ * 
+ * A serpentine completely covers a set of numbers; this means that all the
+ * numbers represented by the set of cells in the serpentine are "spoken
+ * for," and can therefore be cleared in all other cells in the dimension.
+ * For an (M choose 3) serpentine, three numbers will be spoken for.
+ * For an (M choose 4) serpentine, four numbers will be spoken for.
+ * 
+ * The sums of the bitmasks for the three cells in an (M choose 3) serpentine
+ * will have exactly three values set.  Those three values will each have
+ * a value of two or three.
+ * If all of these three values are two, then we have a "perfect serpentine."
+ *   Example:  AB BC AC     12 23 13     vals:  222 000 000
+ *   Example:  AB BC ABC    12 23 123    vals:  232 000 000
+ *   Example:  AB ABC ABC   12 123 123   vals:  332 000 000
+ *   Example:  ABC ABC ABC  123 123 123  vals:  333 000 000
+ *
+ * The sums of the bitmasks for the four cells in an (M choose 4) serpentine
+ * will have exactly four values set.  Those four values will each have
+ * a value of two, three or four.
+ * If all of these four values are two, then we have a "perfect serpentine."
+ *   Example:  AB BC CD DA          12 23 34 14          bits:  222 200 000
+ *   Example:  AB BCD CD DA         12 234 34 14         bits:  222 300 000
+ *   Example:  ABD BCD CD DA        124 234 34 14        bits:  222 400 000
+ *   Example:  ABCD BCD CD DA       1234 234 34 14       bits:  223 400 000
+ *   Example:  ABCD BCD CD ACD      1234 234 34 134      bits:  224 400 000
+ *   Example:  ABC BCD BCD AD       123 234 234 14       bits:  233 300 000
+ *   Example:  ABCD BCD BCD AD      1234 234 234 14      bits:  233 400 000
+ *   Example:  ABCD BCD BCD ACD     1234 234 234 134     bits:  234 400 000
+ *   Example:  ABCD BCD BCD ABCD    1234 234 234 1234    bits:  244 400 000
+ *   Example:  ABCD ABCD BCD ABCD   1234 1234 234 1234   bits:  344 400 000
+ *   Example:  ABCD ABCD ABCD ABCD  1234 1234 1234 1234  bits:  444 400 000
+ * 
+ * Example (5 choose 4), serpentine:  35 123 135 1235:
+ *  |     8 |     9 |    7  | 3 5   | 123 5 | 123   |    6  | 1 3 5 | 1 34  |
+ * becomes (2 values cleared):
+ *  |     8 |     9 |    7  | 3 5   | 123 5 | 123   |    6  | 1 3 5 |    4  |
+ *
+ * Example (5 choose 4), serpentine:  35 1357 1357 1357:
+ *  |  4    | 23 5  | 3 5   |    6  | 1357  |     8 |     9 | 1357  | 1357  |
+ * becomes (2 values cleared):
+ *  |  4    | 2     | 3 5   |    6  | 1357  |     8 |     9 | 1357  | 1357  |
+ *
+ * Example (4 choose 4), serpentine:  135 137 357 357:
+ *  | 12378 | 13 7  | 123478 |     9 | 1 3 5 | 12348 | 3 5 7 | 3 5 7 |    6  |
+ * becomes (8 values cleared):
+ *  |  2  8 | 13 7  |  2 4 8 |     9 | 1 3 5 |  2 48 | 3 5 7 | 3 5 7 |    6  |
+ *
+ * Example (4 choose 4), serpentine:  135 137 137 357:
+ *  | 13  7 | 13679 | 13679 |     8 | 2     |  4    | 1 3 7 | 1 3 5 | 3 5 7 |
+ * becomes (6 values cleared):
+ *  | 13  7 |   6 9 |   6 9 |     8 | 2     |  4    | 1 3 7 | 1 3 5 | 3 5 7 |
+ *
+ * Example (4 choose 4), serpentine:  378 378 678 3678:
+ *  | 23678 | 3 678 |     9 |  4    | 1     |   5   | 3  78 | 3  78 |   678 |
+ * becomes (4 values cleared):
+ *  | 2     | 3 678 |     9 |  4    | 1     |   5   | 3  78 | 3  78 |   678 |
+ *
+ * Example (5 choose 3), serpentine:  39 36 69:
+ *  |  4    | 2     | 3   9 | 1     | 3 567 | 3  6  |  5 78 |  6  9 | 3 5 8 |
+ * becomes (3 values cleared):
+ *  |  4    | 2     | 3   9 | 1     |   5 7 | 3  6  |  5 78 |  6  9 |   5 8 |
+ *
+ * Example (4 choose 3), serpentine:  16 69 19:
+ *  | 13 67 | 3  67 |   5   |     8 | 2     | 1   9 | 1  6  |  4    |   6 9 |
+ * becomes (3 values cleared):
+ *  |  3  7 | 3   7 |   5   |     8 | 2     | 1   9 | 1  6  |  4    |   6 9 |
+ *
+ * Example (4 choose 3), serpentine:  46 68 48:
+ *  |    7  | 13 69 |   6 8 |   5   | 34  9 |  4  8 | 2     | 1 346 |  4 6  |
+ * becomes (4 values cleared):
+ *  |    7  | 13  9 |   6 8 |   5   | 3   9 |  4  8 | 2     | 1 3   |  4 6  |
+ *
+ * Example (3 choose 3), serpentine:  46 68 48:
+ *  | 3     | 24 67 | 24 67 |   6 8 | 4   8 | 4 6   | 1     |     9 |   5   |
+ * becomes (4 values cleared):
+ *  | 3     | 2   7 | 2   7 |   6 8 | 4   8 | 4 6   | 1     |     9 |   5   |
+ *
+ * Information below is from earlier testing.  It is still believed to
+ * be correct.
+ *
+ * Note:  d6.txt contains a perfect serpentine:  34 23 24
+ * Note:  d6.txt contains a perfect serpentine:  56 25 26, which leads to
+ *   four values being cleared:
+ *  |   56  |  4    | 3     | 125 9 | 125 9 | 2  5  |    7  |    8  | 2  6  |
+ * becomes:
+ *  |   56  |  4    | 3     | 1   9 | 1   9 | 2  5  |    7  |    8  | 2  6  |
+ *
+ * Note:  m3.txt contains a serpentine:  269 29 26, which leads to
+ *   four values being cleared:
+ *  | 2 6 9 | 3     | 2   9 |    7  | 126 8 |   5   | 2   6 | 126 8 |  4    |
+ * becomes:
+ *  | 2 6 9 | 3     | 2   9 |    7  | 1   8 |   5   | 2   6 | 1   8 |  4    |
+ *
+ * Note:  m4.txt contains a serpentine:  278 27 78, which leads to
+ *   five values being cleared:
+ *  | 24789 | 2 78  | 1     |   5   | 2  7  |  3    |    6  |    78 | 4 789 |
+ * becomes:
+ *  |  4  9 | 2 78  | 1     |   5   | 2  7  |  3    |    6  |    78 | 4   9 |
+ *
+ * Note:  m9.txt contains a serpentine:  46 146 146, which leads to
+ *   four values being cleared:
+ *  | 34 67 |  4 6  | 34 67 |     9 | 1 4 6 |   5   | 2     | 1 4 6 |    8  |
+ * becomes:
+ *  | 3   7 |  4 6  | 3   7 |     9 | 1 4 6 |   5   | 2     | 1 4 6 |    8  |
+ *
+ * Note:  m18.txt contains a serpentine:  568 568 568, which leads to
+ *   four values being cleared:
+ *  |  4    | 1     | 25 78 |     9 |  3    |  56 8 |  56 8 |  56 8 | 2 678 |
+ *  |  4    | 1     | 2  7  |     9 |  3    |  56 8 |  56 8 |  56 8 | 2  7  |
+ *
+ * Note that serpentine analysis appears to have substantial overlap with
+ *   modified tuple analysis.
+ */
+uint4
+new_serpentine_analysis(cell_t *test_cells[DIMENSION_SIZE])
+{
+    uint4     num_changes;
+
+    /* test for serpentines of the form (M choose 3) */
+    num_changes = new_serpentine_m_choose_n_analysis(test_cells, 3);
+
+    /* test for serpentines of the form (M choose 4) */
+    num_changes = new_serpentine_m_choose_n_analysis(test_cells, 4);
 
     return (num_changes);
 }
@@ -2337,8 +2829,11 @@ process_one_dimension(board_t *board, uint4 row, uint4 col, uint4 dimension)
      * If three undetermined cells contain two or three values that
      * overlap in a serpentine pattern, those three values can be
      * eliminated from all other cells in the dimension.
+     *
+     * New serpentine analysis implements (M choose N) testing.
      */
-    num_changes += serpentine_analysis(test_cells);
+    //num_changes += serpentine_analysis(test_cells);
+    num_changes += new_serpentine_analysis(test_cells);
 
     return (num_changes);
 }
@@ -3068,7 +3563,7 @@ main(int argc, char **argv)
             ((solved && sane) ? ">>>>>>" : "***"),
             game->filename,
             (solved ? "solved" : "not solved"),
-            (sane ? ", sane" : ""),
+            (sane ? ", sane" : ", not sane"),
             ((solved && sane) ? "" : "Solution failed!"));
         printf("    Iterations:  %u.  "
             "Changes:  Rows %u, cols %u, squares %u, tot %u\n",
