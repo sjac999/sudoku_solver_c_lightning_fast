@@ -26,7 +26,8 @@ for PNAME in g1 g2                                    \
 	l3-59 l3-61 l3-62 cp4-7 cp5-3 l3-63           \
 	l3-66 l3-67 l3-68                             \
 	l3-69 l3-70 l3-71 l3-72 l3-73 l3-74           \
-	l3-75 l3-76 l2-2 md-2 md-3 md-5 ws-1 l3-79
+	l3-75 l3-76 l2-2 md-2 md-3 md-5 ws-1 l3-79    \
+	d4 l3-10
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
@@ -36,12 +37,12 @@ done
 # These puzzles previously failed (without DFS).
 #
 for PNAME in                                          \
-	d4 d7 u5s6 d10 l4-1                           \
+	d7 u5s6 d10 l4-1                              \
 	l4-2 l4-3 l4-4 l4-5                           \
 	l4-6 l4-7 l4-8 l4-9                           \
 	l4-10 l4-11 l4-12 l4-13                       \
 	l4-14 l4-15 l4-16 l4-17                       \
-	l4-18 l4-19 l3-10 l3-13                       \
+	l4-18 l4-19 l3-13                             \
 	l4-20 l3-21 l3-22 l3-24                       \
 	l3-25 l3-29 l3-31 l4-21                       \
 	l4-22 l4-23 l4-24 l4-25                       \
