@@ -8,8 +8,6 @@ PDIR="../puzzles1"
 # Still not solved 02/12/12, even after dimensional analysis added.
 # Still not solved 09/24/17.
 #
-# Not solved as of 02/19/06 (needs modified tuple analysis)
-$SUDOKU $FLAGS -f $PDIR/d4.txt
 # Not solved as of 03/11/06 (needs ???)
 $SUDOKU $FLAGS -f $PDIR/d7.txt
 # Not solved as of 03/19/06 (needs ???)
@@ -120,10 +118,6 @@ $SUDOKU $FLAGS -f $PDIR/l4-18.txt
 
 # Solver cannot fully solve at this time, 09/24/17.
 $SUDOKU $FLAGS -f $PDIR/l4-19.txt
-
-# Solver cannot fully solve at this time, 09/24/17.
-# Fixme:  Look at this one
-$SUDOKU $FLAGS -f $PDIR/l3-10.txt
 
 # Solver cannot fully solve at this time, 09/24/17.
 # Fixme:  Look at this one

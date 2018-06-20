@@ -81,3 +81,11 @@ do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
 
+#
+# Solved on 06/18/18 or later (after (M choose N) serpentine analysis added)
+#
+for PNAME in d4 l3-10
+do
+	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
