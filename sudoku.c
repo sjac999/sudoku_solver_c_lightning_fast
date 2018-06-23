@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.88 2018/06/20 05:21:54 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.89 2018/06/23 08:33:04 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -813,7 +813,6 @@ board_find_next_undetermined_cell(game_t *game, board_t *board,
     }
     internal_index = state->state_index;
 
-//#ifdef REMOVED
     do {
         row = game->coord[internal_index].row;
         col = game->coord[internal_index].col;
@@ -833,30 +832,15 @@ board_find_next_undetermined_cell(game_t *game, board_t *board,
             return (cell);
         }
         internal_index++;
+        /* Fixed wrap bug */
+        if (internal_index >= TOT_NUM_CELLS) {
+            internal_index = 0;
+        }
         internal_count++;
     } while (internal_count <= TOT_NUM_CELLS);
 
     state->state_index = internal_index;
     state->state_count = internal_count;
-//#endif
-
-// Fixme
-#ifdef REMOVED
-    for (row=0; row < NUM_HORIZ_CELLS; row++) {
-        for (col=0; col < NUM_VERT_CELLS; col++) {
-            if (state->state_index > internal_index) {
-                internal_index++;
-                continue;
-            }
-            cell = &board->x_y_board[row][col];
-            if (cell->num_possible_values > 1) {
-                state->state_index = internal_index + 1;
-                return (cell);
-            }
-            internal_index++;
-        }
-    }
-#endif
 
     // Fixme
     //printf("returning cell %p row %u col %u\n", NULL, row, col);
@@ -1397,7 +1381,7 @@ input_values(int argc, char **argv, game_t *game)
     char     *fname = "----";
     char     *filename = NULL;
     uint4    debug = 0;
-    uint4    levels = 0;
+    uint4    levels;
     char     *endptr;
     int      rc;
 
