@@ -10,7 +10,9 @@ PDIR="../puzzles1"
 # algorithmic solver.
 #
 for PNAME in                                          \
-	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1
+	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1      \
+	un-11 un-13 un-15 un-19 un-21 un-23 un-25     \
+	un-26 un-27 un-29 un-31 un-33 un-36
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
