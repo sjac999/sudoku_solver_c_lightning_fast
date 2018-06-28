@@ -145,10 +145,6 @@ $SUDOKU $FLAGS -f $PDIR/l3-25.txt
 
 # Solver cannot fully solve at this time, 09/30/17.
 # Fixme:  Look at this one
-$SUDOKU $FLAGS -f $PDIR/l3-29.txt
-
-# Solver cannot fully solve at this time, 09/30/17.
-# Fixme:  Look at this one
 $SUDOKU $FLAGS -f $PDIR/l3-31.txt
 
 # Solver cannot fully solve at this time, 10/01/17.
