@@ -63,6 +63,7 @@ typedef unsigned long long         uint8;
 #define D_BFS                      0x00000100
 #define D_DFS                      0x00000200
 #define D_DFS2                     0x00000400
+#define D_2MB                      0x00000800
 
 /*
  * Defines for game->game_flags

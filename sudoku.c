@@ -18,7 +18,7 @@
  * determined cells.
  *
  * Each cell exists in exactly three dimensions; a row, a column and
- * a square.  Each dimension in a standard game contains 9 cells.
+ * a square.  Each dimension in a standard board contains 9 cells.
  *
  * Here is a summary of the algorithms used by the algorithmic solver:
  *
@@ -46,9 +46,9 @@
  *
  * Pair analysis:  Within a dimension, if two cells containing a matching
  *     pair exist, then both values in the pairs are "spoken for."  (The
- *     two cells must contain only the matching pair, and no other values.)
- *     Therefore, those two values cannot exist in any other cell in that
- *     dimension and are cleared.
+ *     two cells must contain one of the two values from the the matching
+ *     pair, and no other values.)  Therefore, those two values cannot
+ *     exist in any other cell in that dimension and are cleared.
  *
  *     Example:
  *       |   6  |  34  |   9  | 2348 |   7  |  34  |  235 |  123 | 1358 |
@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.89 2018/06/23 08:33:04 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.91 2018/06/28 04:55:24 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1743,6 +1743,152 @@ must_be_analysis(cell_t *test_cells[DIMENSION_SIZE])
 }
 
 /*
+ * If two undetermined cells contains the same two values, and those
+ * values appear in no other cells in the dimension, then clear all
+ * other values in those two cells.
+ *
+ * test_cells:  array of pointers to the cells of a dimension
+ */
+uint4
+two_must_be_analysis(cell_t *test_cells[DIMENSION_SIZE])
+{
+    uint4     num_changes = 0;
+    uint4     sum_num[DIMENSION_SIZE] = { 0 };
+    cell_t    *cell;
+    uint4     cell_index;
+    uint4     i;
+    uint4     num_in_two_cells = 0;
+    int       number_first  = -1;
+    int       number_second = -1;
+    cell_t    *cell_first  = NULL;
+    cell_t    *cell_second = NULL;
+
+    /*
+     * For each cell in this dimension, sum all the numbers that the
+     * cell represents.
+     */
+    for (cell_index=0; cell_index < DIMENSION_SIZE; cell_index++) {
+        cell = test_cells[cell_index];
+        for (i=0; i < DIMENSION_SIZE; i++) {
+            if (cell->values[i]) {
+                sum_num[i]++;
+            }
+        }
+    }
+
+    /*
+     * Determine if two numbers exist twice across all the cells.
+     */
+    for (i=0; i < DIMENSION_SIZE; i++) {
+        if (2 == sum_num[i]) {
+            num_in_two_cells++;
+        }
+    }
+    /* two numbers do not exist in exactly two cells */
+    if (2 != num_in_two_cells) {
+        return (0);
+    }
+
+#ifdef REMOVED
+    printf("<<<<<< two numbers in two cells!\n");
+    printf("  sum_num %d %d %d  %d %d %d  %d %d %d\n",
+      sum_num[0], sum_num[1], sum_num[2], 
+      sum_num[3], sum_num[4], sum_num[5], 
+      sum_num[6], sum_num[7], sum_num[8]);
+    print_dimension(test_cells);
+#endif
+
+    /*
+     * Determine those two numbers.
+     */
+    for (i=0; i < DIMENSION_SIZE; i++) {
+        if (2 == sum_num[i]) {
+            if (-1 == number_first) {
+                number_first = i;
+            } else {
+                number_second = i;
+            }
+        }
+    }
+
+    /*
+     * Find the two cells containing the first number.
+     */
+    for (i=0; i < DIMENSION_SIZE; i++) {
+        cell = test_cells[i];
+        if (cell->values[number_first]) {
+            if (NULL == cell_first) {
+                cell_first = cell;
+            } else {
+                cell_second = cell;
+            }
+        }
+    }
+
+    if (!cell_first || !cell_second ||
+      (-1 == number_first) || (-1 == number_second)) {
+        printf("<<<<<< two_must_be_analysis() internal error! %p %p %d %d\n",
+          cell_first, cell_second, number_first, number_second);
+        return (0);
+    }
+
+    /*
+     * Fail if both cells do not also contain the second number.
+     */
+    if (!cell_first->values[number_second] ||
+      !cell_second->values[number_second]) {
+        return (0);
+    }
+
+    /*
+     * If both cells contain exactly two values, there is no work for
+     * us to do.
+     */
+    if ((2 == cell_first->num_possible_values) &&
+      (2 == cell_second->num_possible_values)) {
+        return (0);
+    }
+
+    //Fixme:  stevej
+    printd(D_2MB, "<<<<<< two matching numbers in two cells! %d %d\n",
+        number_first, number_second);
+    printd_dimension(D_2MB, test_cells);
+
+    /*
+     * One or more extraneous values (values that are not number_first or
+     * number_second) exist in at least one of the cells.  Those values
+     * can be cleared.
+     */
+    for (i=0; i < DIMENSION_SIZE; i++) {
+        /* don't clear either of these values */
+        if ((i == number_first) || (i == number_second)) {
+            continue;
+        }
+        /* Clear this value if set in cell_first */
+        if (cell_first->values[i]) {
+            cell_first->values[i] = FALSE;
+            cell_first->num_possible_values--;
+            num_changes++;
+            printd(D_2MB, "<<<<<< clearing %d in first cell! %d\n",
+              i, cell_first->num_possible_values);
+        }
+        /* Clear this value if set in cell_second */
+        if (cell_second->values[i]) {
+            cell_second->values[i] = FALSE;
+            cell_second->num_possible_values--;
+            num_changes++;
+            printd(D_2MB, "<<<<<< clearing %d in second cell! %d\n",
+              i, cell_second->num_possible_values);
+        }
+    }
+
+    //Fixme:  stevej
+    printd_dimension(D_2MB, test_cells);
+
+    return (num_changes);
+}
+
+/*
  * Clear every value in cell that appears in match_cell.
  */
 uint4
@@ -2783,6 +2929,12 @@ process_one_dimension(board_t *board, uint4 row, uint4 col, uint4 dimension)
      * unique in this dimension, set it to that value.
      */
     num_changes += must_be_analysis(test_cells);
+
+    /*
+     * Fixme:  comment
+     * 
+     */
+    num_changes += two_must_be_analysis(test_cells);
 
     /*
      * If two undetermined cells contain two values, and
