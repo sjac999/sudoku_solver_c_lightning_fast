@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.91 2018/06/28 04:55:24 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.92 2018/07/02 01:45:56 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -3694,12 +3694,19 @@ main(int argc, char **argv)
         print_board(game->board_curr);
     }
 
+    /*
+     * Preface to summary line:
+     * - solved and sane:          >>>>>>
+     * - not solved and sane:      ***
+     * - not solved and not sane:  ******
+     */
     if (2 >= game->dprint.silent_level) {
-        printf("%s %s %s%s!  %s\n",
+        printf("%s%s %s %s%s!  %s\n",
             ((solved && sane) ? ">>>>>>" : "***"),
+            ((!solved && !sane) ? "***" : ""),
             game->filename,
-            (solved ? "solved" : "not solved"),
-            (sane ? ", sane" : ", not sane"),
+            (solved ? "solved" : "NOT solved"),
+            (sane ? ", sane" : ", NOT sane"),
             ((solved && sane) ? "" : "Solution failed!"));
         printf("    Iterations:  %u.  "
             "Changes:  Rows %u, cols %u, squares %u, tot %u\n",
