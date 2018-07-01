@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# Tests every puzzle that currently fails the algorithmic
+# solver.  Tests those puzzles at just under the level at
+# which they pass.  Should help identify puzzles which are
+# solved by new algorithmic improvement to the solver.
+#
+
+SUDOKU="../sudoku"
+FLAGS="-s 2"
+FLAGS_B="-s 2 -b"
+FLAGS_D1="-s 2 -r -D 1"
+FLAGS_D2="-s 2 -r -D 2"
+FLAGS_D3="-s 2 -r -D 3"
+PDIR="../puzzles1"
+
+#
+# These puzzles currently require "-r -D 1" or "-b" to pass
+#
+for PNAME in                                        \
+	d7 u5s6 d10 l4-1 l4-2 l4-3 l4-4 l4-5 l4-6   \
+	l4-7 l4-8 l4-9 l4-10 l4-11 l4-12 l4-13      \
+	l4-14 l4-15 l4-16 l4-17 l4-18 l4-19 l3-13   \
+	l4-20 l3-21 l3-22 l3-24 l3-25 l3-31 l4-21   \
+	l4-22 l4-23 l4-24 l4-25 l4-26 l4-27 l3-39   \
+	l4-28 l3-44 l4-29 l4-30 l3-45 l4-31 l4-32   \
+	l4-33 l4-34 l4-35 l4-36 l4-37 l4-38 l4-39   \
+	l4-40 l3-47 l3-49 l3-52 l3-54 l3-57 l3-58   \
+	l3-60 l4-41 l4-42 l4-43 l4-44 l4-45 l4-46   \
+	l4-47 l4-48 l4-49 l4-50 l4-51 l4-52 l3-64   \
+	l3-65 l4-53 l4-54 l4-55 l4-56 l4-57 l4-58   \
+	l4-59 l4-60 l4-61 l4-62 l4-63 l4-64 l4-64   \
+	l4-65 l4-66 l4-67 l4-68 l4-69 l4-70 l4-71   \
+	md-1 md-4 md-6 me-1 me-2 me-3 me-4 me-5     \
+	me-6 me-7 me-8 me-9 me-10 mep1 l3-77 l3-78  \
+	l3-80 l4-72 l4-73 l4-74 l4-75 l4-76         \
+	un-4 un-6 un-8 un-10 un-12 un-14 un-16      \
+	un-18 un-20 un-24 un-28 un-30 un-32 un-34   \
+	un-35 un-36
+do
+        $SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
+#
+# These puzzles currently require -r -D 2 to pass
+#
+for PNAME in                                        \
+	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1    \
+	un-11 un-13 un-15 un-19 un-21 un-23 un-25   \
+	un-26 un-27 un-29 un-31 un-33 
+do
+        $SUDOKU $FLAGS_B -f $PDIR/$PNAME.txt
+done
+
+#
+# These puzzles currently require -r -D 3 to pass
+#
+for PNAME in                                        \
+	lvl3-1 un-17 un-22
+do
+        $SUDOKU $FLAGS_D2 -f $PDIR/$PNAME.txt
+done
+
