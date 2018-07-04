@@ -36,7 +36,8 @@ for PNAME in                                        \
 	l3-80 l4-72 l4-73 l4-74 l4-75 l4-76         \
 	un-4 un-6 un-8 un-10 un-12 un-14 un-16      \
 	un-18 un-20 un-24 un-28 un-30 un-32 un-34   \
-	un-35 un-36
+	un-35 un-36 un-38 un-40 un-43 un-44 un-45   \
+	un-46 un-49 un-50 un-54
 do
         $SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
@@ -47,7 +48,8 @@ done
 for PNAME in                                        \
 	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1    \
 	un-11 un-13 un-15 un-19 un-21 un-23 un-25   \
-	un-26 un-27 un-29 un-31 un-33 
+	un-26 un-27 un-29 un-31 un-33 un-37 un-39   \
+	un-41 un-42 un-47 un-48 un-52 un-53
 do
         $SUDOKU $FLAGS_B -f $PDIR/$PNAME.txt
 done
