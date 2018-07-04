@@ -92,7 +92,7 @@ done
 #
 # Solved on 06/27/18 or later (after two must be analysis added)
 #
-for PNAME in l3-29
+for PNAME in l3-29 un-51
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
