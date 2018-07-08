@@ -74,6 +74,8 @@ typedef unsigned long long         uint8;
 #define REC_DESCENT_ONLY           0x00000020
 /* Random starting cell index flag */
 #define RANDOM_START_INDEX         0x80000000
+/* Non-standard, linear puzzle file format */
+#define LINEAR_FILE_FORMAT         0x40000000
 
 /* Controls verbocity (not currently used) */
 #define DS_SILENT                  0x00000001

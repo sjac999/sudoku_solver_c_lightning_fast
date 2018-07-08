@@ -161,103 +161,6 @@ void board_set_pointers(board_t *board, game_t *game, board_t *prev,
 bool cell_value_set(cell_t *cell, uint4 value);
 
 
-#ifdef REMOVED
-/*
- * Print the numerical representation of each TRUE value in a
- * values array.  This array is as that contained in a cell_t.
- * Note that for a standard 9x9 Sudoku game, array indices
- * 0-8 represent values 1-9.
- */
-void
-print_array(bool array[DIMENSION_SIZE])
-{
-    uint4    i;
-
-    for (i=0; i < DIMENSION_SIZE; i++) {
-        if (array[i]) {
-            printf("%u", i + 1);
-        } else {
-            printf(" ");
-        }
-    }
-}
-
-/*
- * Print the numerical representation of each TRUE value in a
- * cell values array.
- */
-void
-print_cell_cell_vals(cell_t *cell)
-{
-    print_array(cell->values);
-}
-
-/*
- * Print the numerical representation of each TRUE value in a
- * cell values array, framed for board representation.
- */
-void
-print_cell_cell(cell_t *cell)
-{
-    printf(" ");
-    print_cell_cell_vals(cell);
-    printf(" |");
-}
-
-/*
- * Print the numerical representation of each TRUE value in a
- * cell values array, framed for board representation.
- */
-void
-print_cell(board_t *board, uint4 row, uint4 col)
-{
-    cell_t    *cell;
-
-    cell = &board->x_y_board[row][col];
-
-    print_cell_cell(cell);
-}
-
-/*
- * Print a representation of a single dimension
- * Fixme:  Could be used in print_board()
- */
-void
-print_dimension(cell_t *cells[DIMENSION_SIZE])
-{
-    uint4    i;
-
-    printf("|");
-    for (i=0; i < DIMENSION_SIZE; i++) {
-        print_cell_cell(cells[i]);
-    }
-    printf("\n");
-}
-
-/*
- * Print a representation of an entire game board.
- */
-void
-print_board(board_t *board)
-{
-    uint4    row, col;
-
-    printf("=======================================================");
-    printf("======================================================\n");
-    for (row=0; row < NUM_HORIZ_CELLS; row++) {
-        printf("|");
-        for (col=0; col < NUM_VERT_CELLS; col++) {
-            print_cell(board, row, col);
-        }
-        printf("\n");
-        if ((row % 3) == 2) {
-            printf("=======================================================");
-            printf("======================================================\n");
-        }
-    }
-}
-#endif  /* REMOVED */
-
 /*
  * The board is solved if every cell in the game has exactly one
  * possible value.  Does NOT check to see if the cell values are sane.
@@ -1318,13 +1221,14 @@ void
 usage(int argc, char **argv)
 {
     printf("\nusage: %s [-?hbIrRV] [-d <debug flags>] [-D <max depth>]\n"
-        "           [-i <start index>] [-s <silent level>] -f <file name>\n",
+        "           [-i <start index>] [-s <silent level>] -fF <file name>\n",
         argv[0]);
     printf(
         "  -b:		try breadth-first search if needed\n"
         "  -d:		set debug flags\n"
         "  -D:		maximum depth for depth-first recursion\n"
-        "  -f:		specify puzzle filename\n"
+        "  -f:		specify puzzle filename (standard format)\n"
+        "  -F:		specify puzzle filename (linear format)\n"
         "  -?h:		print help and exit\n"
         "  -i:		specify starting index for puzzle search\n"
         "  -I:		enable random starting index for puzzle search\n"
@@ -1344,12 +1248,18 @@ input_puzzle_file(game_t *game, FILE *input_fd)
     uint4    row;
     uint4    col;
     int      rc;
+    enum input_file_format file_format;
+
+    file_format = input_standard;
+    if (game->game_flags & LINEAR_FILE_FORMAT) {
+        file_format = input_linear;
+    }
 
     /*
      * Reads the input file into the intermediate format.  Values are
-     * range checked; zero represents '.' from the input file.
+     * range checked; zero represents '.' from the standard input file.
      */
-    rc = read_puzzle_file(input_fd, input_standard, intermediate_board_format);
+    rc = read_puzzle_file(input_fd, file_format, intermediate_board_format);
     if (rc) {
         return (rc);
     }
@@ -1393,7 +1303,7 @@ input_values(int argc, char **argv, game_t *game)
     /*
      * Command line options handling
      */
-    while ((opt = getopt(argc, argv, "?bd:D:f:hi:IrRs:V")) != EOF) {
+    while ((opt = getopt(argc, argv, "?bd:D:f:F:hi:IrRs:V")) != EOF) {
         switch (opt) {
         case 'b':
             game->game_flags |= BREADTH_FIRST_1LR;
@@ -1420,6 +1330,10 @@ input_values(int argc, char **argv, game_t *game)
             break;
         case 'f':
             filename = strdup(optarg);
+            break;
+        case 'F':
+            filename = strdup(optarg);
+            game->game_flags |= LINEAR_FILE_FORMAT;
             break;
         case 'i':
             levels = strtoul(optarg, &endptr, 0);
@@ -1484,15 +1398,6 @@ input_values(int argc, char **argv, game_t *game)
     }
 
     game->filename = filename;
-
-#ifdef REMOVED
-    /*
-     * Fixme:  Recursive descent not implemented at present.
-     */
-    if ((REC_DESCENT | REC_DESCENT_ONLY) & game->game_flags) {
-        printf("\n### WARNING:  Recursive descent not implemented!\n\n");
-    }
-#endif
 
     /*
      * Reads the input file and populates the initial board in the game
