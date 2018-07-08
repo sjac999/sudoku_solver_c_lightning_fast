@@ -29,8 +29,14 @@ typedef struct prog_info_ {
     /* malloced copies of the file name strings */
     char      *in_filename;
     char      *out_filename;
+    /* Input file format */
+    enum input_file_format  in_file_format;
+    /* Output file format */
+    enum output_file_format  out_file_format;
     /* Debug print information */
     dprint_t  *dprint;
+    /* Process board array values if TRUE */
+    bool      process_array_values;
     uint4     input_board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS];
     uint4     output_board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS];
 } prog_info_t;
@@ -73,6 +79,7 @@ program_init(void)
     pi->output_fd = NULL;
     pi->in_filename = NULL;
     pi->out_filename = NULL;
+    pi->process_array_values = FALSE;
 
     return (pi);
 }
@@ -111,9 +118,10 @@ input_puzzle_file(prog_info_t *pi)
 
     /*
      * Reads the input file into the intermediate format.  Values are
-     * range checked; zero represents '.' from the input file.
+     * range checked; zero represents '.' from the standard input file.
      */
-    rc = read_puzzle_file(pi->input_fd, pi->input_board_array);
+    rc = read_puzzle_file(pi->input_fd, pi->in_file_format,
+      pi->input_board_array);
     if (rc) {
         return (rc);
     }
@@ -137,12 +145,15 @@ input_puzzle_file(prog_info_t *pi)
 void
 usage(int argc, char **argv)
 {
-    printf("\nusage: %s [-?hsV] [-i <ifile>] [-o <ofile>] [-d <debug flags>]\n",
+    printf("\nusage: %s [-?hsV] [-iI <ifile>] [-oO <ofile>] [-d <debug flags>]\n",
         argv[0]);
     printf("   -?h:		print help and exit\n");
     printf("   -d:		set debug flags\n");
-    printf("   -i:		specify input filename\n");
-    printf("   -o:		specify output filename\n");
+    printf("   -i:		specify input filename (standard format)\n");
+    printf("   -I:		specify input filename (linear format)\n");
+    printf("   -o:		specify output filename (standard format)\n");
+    printf("   -O:		specify output filename (standard format)\n");
+    printf("   -p:		process input, don't just copy\n");
     printf("   -s:		silent mode level\n");
     printf("   -V:		print version string and exit\n");
 }
@@ -155,8 +166,6 @@ usage(int argc, char **argv)
 int
 input_values(int argc, char **argv, prog_info_t *pi)
 {
-    char           *in_fname = "----";
-    char           *out_fname = "----";
     char           *endptr;
     uint4          debug = 0;
     uint4          levels = 0;
@@ -164,15 +173,9 @@ input_values(int argc, char **argv, prog_info_t *pi)
     int            rc;
 
     /*
-     * Note:  Can hack puzzle name into program for testing like the following:
-     */
-    //pi->in_filename = "./puzzles/d6.txt";
-    //pi->out_filename = "./p2/d6m.txt";
-
-    /*
      * Command line options handling
      */
-    while ((opt = getopt(argc, argv, "?d:f:hi:o:s:V")) != EOF) {
+    while ((opt = getopt(argc, argv, "?d:f:hi:I:o:O:ps:V")) != EOF) {
         switch (opt) {
         case 'd':
             debug = strtoul(optarg, &endptr, 0);
@@ -180,15 +183,28 @@ input_values(int argc, char **argv, prog_info_t *pi)
                 pi->dprint->flags = debug;
             } else {
                 printf("Invalid debug flags 0x%x\n", debug);
-                //free(filename);
                 return (-1);
             }
             break;
         case 'i':
-            pi->in_filename = strdup(optarg);
+            pi->in_filename    = strdup(optarg);
+            pi->in_file_format = input_standard;
+            break;
+        case 'I':
+            pi->in_filename    = strdup(optarg);
+            pi->in_file_format = input_linear;
             break;
         case 'o':
-            pi->out_filename = strdup(optarg);
+            pi->out_filename    = strdup(optarg);
+            pi->out_file_format = output_standard;
+            break;
+        case 'O':
+            pi->out_filename    = strdup(optarg);
+            pi->out_file_format = output_linear;
+            break;
+        case 'p':
+            /* process input values if TRUE, else just copy to output */
+            pi->process_array_values = TRUE;
             break;
         case 's':
             levels = strtoul(optarg, &endptr, 0);
@@ -211,14 +227,13 @@ input_values(int argc, char **argv, prog_info_t *pi)
         }
     }
 
-    //in_fname = "./puzzles/l4-30.txt";
-    //out_fname = "./p2/l4-30.txt";
-
     if (!pi->in_filename) {
-        pi->in_filename = strdup(in_fname);
+        printd(D_CRIT, "\n*** Input filename not specified!\n");
+        return (-1);
     }
     if (!pi->out_filename) {
-        pi->out_filename = strdup(out_fname);
+        printd(D_CRIT, "\n*** Output filename not specified!\n");
+        return (-2);
     }
 
     printd(D_INPUT, "input filename:  %s\n", pi->in_filename);
@@ -227,12 +242,12 @@ input_values(int argc, char **argv, prog_info_t *pi)
     pi->input_fd = fopen(pi->in_filename, "r");
     if (!pi->input_fd) {
         printd(D_CRIT, "\n*** File \"%s\" does not exist!\n", pi->in_filename);
-        return (-1);
+        return (-3);
     }
     pi->output_fd = fopen(pi->out_filename, "wx");
     if (!pi->output_fd) {
         printd(D_CRIT, "\n*** File \"%s\" already exists!\n", pi->out_filename);
-        return (-2);
+        return (-4);
     }
 
     /*
@@ -247,11 +262,10 @@ input_values(int argc, char **argv, prog_info_t *pi)
 }
 
 /*
- * Processes the input array values, then copies the result to the
- * output array.
+ * Copies the input array values to the output array.
  */
 int
-process_array_values(prog_info_t *pi)
+copy_array_values(prog_info_t *pi)
 {
     uint4    row;
     uint4    col;
@@ -269,7 +283,22 @@ process_array_values(prog_info_t *pi)
 }
 
 /*
- * Transfers the output array to the output file.
+ * Processes the input array values, then copies the result to the
+ * output array.  Add any code to process the values from the input
+ * puzzle here.
+ */
+int
+process_array_values(prog_info_t *pi)
+{
+    int      rc;
+
+    rc = copy_array_values(pi);
+
+    return (rc);
+}
+
+/*
+ * Writes the output array to the output file.
  * Prepends the array data with a generic header.
  */
 int
@@ -282,7 +311,7 @@ output_array_values(prog_info_t *pi)
             pi->output_board_array);
     }
 
-    rc = fprint_puzzle_file(pi->output_fd,
+    rc = fprint_puzzle_file(pi->output_fd, pi->out_file_format,
         "Source:  ", "Date:    ", "Level:   ",
         pi->output_board_array);
 
@@ -309,7 +338,12 @@ main(int argc, char **argv)
         exit(15);
     }
 
-    rc = process_array_values(pi);
+    /* process input values if TRUE, else copy to output unchanged */
+    if (pi->process_array_values) {
+        rc = process_array_values(pi);
+    } else {
+        rc = copy_array_values(pi);
+    }
     if (rc) {
         if (0 > rc) {
             printf("\n*** Processing error %d!  Exiting!\n", rc);

@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.92 2018/07/02 01:45:56 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.93 2018/07/08 07:53:04 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1349,7 +1349,7 @@ input_puzzle_file(game_t *game, FILE *input_fd)
      * Reads the input file into the intermediate format.  Values are
      * range checked; zero represents '.' from the input file.
      */
-    rc = read_puzzle_file(input_fd, intermediate_board_format);
+    rc = read_puzzle_file(input_fd, input_standard, intermediate_board_format);
     if (rc) {
         return (rc);
     }

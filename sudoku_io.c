@@ -26,9 +26,9 @@
  * Fixme:  Full of magic numbers.
  * Fixme:  Will not work for puzzles larger than 9x9.
  */
-int
-fprint_puzzle_array(FILE *output_fd,
-                    uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+static int
+fprint_puzzle_array_standard(FILE *output_fd,
+                             uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
 {
     uint4    row;
     uint4    col;
@@ -100,20 +100,22 @@ print_puzzle_array(uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
 {
     int      rc;
 
-    rc = fprint_puzzle_array(stdout, board_array);
+    rc = fprint_puzzle_array_standard(stdout, board_array);
 
     return (rc);
 }
 
 /*
- * Read the input file
+ * Read a puzzle from an input file.
  *
  * Fixme:  Will not work for boards larger than 9x9.
  * Fixme:  Magic numbers.
+ *
+ * board_array[][]:  Output array to be filled with puzzle values.
  */
 int
-read_puzzle_file(FILE *input_fd,
-                 uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+read_puzzle_file_standard(FILE *input_fd,
+                          uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
 {
     char     input_buf[MAX_LINE_SIZE];
     int      scnt;
@@ -197,12 +199,71 @@ read_puzzle_file(FILE *input_fd,
 }
 
 /*
+ * Read a puzzle from a linear format input file.
+ *
+ * board_array[][]:  Output array to be filled with puzzle values.
+ */
+int
+read_puzzle_file_linear(FILE *input_fd,
+                        uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+{
+    uint4    row;
+    uint4    col;
+    uint4    val;
+
+    /*
+     * Input the puzzle from a linear array of ASCII values, 0-9.
+     * 0 represents ".", or an unassigned value, in the puzzle.
+     */
+    for (row=0; row < NUM_VERT_CELLS; row++) {
+        for (col=0; col < NUM_HORIZ_CELLS; col++) {
+            val = getc(input_fd);
+
+            if (val >= '0' && val <= '9') {
+                board_array[row][col] = val - '0';
+            } else {
+                return (-6);
+            }
+        }
+    }
+
+    return (0);
+}
+
+/*
+ * Reads a puzzle from an input file of the specified format.
+ *
+ * board_array[][]:  Output array to be filled with puzzle values.
+ */
+int
+read_puzzle_file(FILE *input_fd, enum input_file_format file_format,
+                 uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+{
+    int      rc;
+
+    switch (file_format) {
+    case input_standard:
+        rc = read_puzzle_file_standard(input_fd, board_array);
+        break;
+    case input_linear:
+        rc = read_puzzle_file_linear(input_fd, board_array);
+        break;
+    default:
+        printf("Unknown file format!\n");
+        return (-7);
+    }
+
+    return (rc);
+}
+
+/*
  * Output to a file:
  * - the file header
  * - the puzzle values from an intermediate format array
  */
-int
-fprint_puzzle_header(FILE *output_fd, char *str1, char *str2, char *str3)
+static int
+fprint_puzzle_header_standard(FILE *output_fd, char *str1, char *str2,
+                              char *str3)
 {
     if (!str1 || !str2 || !str3) {
         return (-1);
@@ -218,21 +279,86 @@ fprint_puzzle_header(FILE *output_fd, char *str1, char *str2, char *str3)
 }
 
 /*
+ * Output to a standard format puzzle file:
+ * - the file header, constructed from the passed-in strings
+ * - the puzzle values from an intermediate format array
+ */
+int
+fprint_puzzle_file_standard(FILE *output_fd, char *str1, char *str2, char *str3,
+                            uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+{
+    int      rc;
+
+    rc = fprint_puzzle_header_standard(output_fd, str1, str2, str3);
+    if (rc) {
+        return (rc);
+    }
+    rc = fprint_puzzle_array_standard(output_fd, board_array);
+
+    return (rc);
+}
+
+/*
+ * Output to a linear format puzzle file:
+ * - the puzzle values from an intermediate format array
+ * - format is a linear array of ASCII digits, 0-9
+ * - 0 represents an unassigned value in the puzzle
+ */
+int
+fprint_puzzle_file_linear(FILE *output_fd, char *str1, char *str2, char *str3,
+                          uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
+{
+    uint4    row;
+    uint4    col;
+    uint4    val;
+
+    /*
+     * Write the puzzle as a linear array of ASCII digits, 0-9.
+     * 0 represents ".", or an unassigned value, in the puzzle.
+     */
+    for (row=0; row < NUM_VERT_CELLS; row++) {
+        for (col=0; col < NUM_HORIZ_CELLS; col++) {
+            val = board_array[row][col];
+
+            if (val >= 0 && val <= 9) {
+                fputc(val + '0', output_fd);
+            } else {
+                fputc('?', output_fd);
+                printf("*** Bad output value %u %u %u!\n", row, col, val);
+                return (-8);
+            }
+        }
+    }
+    fputc('\n', output_fd);
+
+    return (0);
+}
+
+/*
  * Output to a file:
  * - the file header, constructed from the passed-in strings
  * - the puzzle values from an intermediate format array
  */
 int
-fprint_puzzle_file(FILE *output_fd, char *str1, char *str2, char *str3,
+fprint_puzzle_file(FILE *output_fd, enum output_file_format file_format,
+                   char *str1, char *str2, char *str3,
                    uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
 {
     int      rc;
 
-    rc = fprint_puzzle_header(output_fd, str1, str2, str3);
-    if (rc) {
-        return (rc);
+    switch (file_format) {
+    case output_standard:
+        rc = fprint_puzzle_file_standard(output_fd, str1, str2, str3,
+          board_array);
+        break;
+    case output_linear:
+        rc = fprint_puzzle_file_linear(output_fd, NULL, NULL, NULL,
+          board_array);
+        break;
+    default:
+        printf("Unknown file format!\n");
+        return (-7);
     }
-    rc = fprint_puzzle_array(output_fd, board_array);
 
     return (rc);
 }
@@ -248,11 +374,11 @@ print_puzzle_file(char *str1, char *str2, char *str3,
 {
     int      rc;
 
-    rc = fprint_puzzle_header(stdout, str1, str2, str3);
+    rc = fprint_puzzle_header_standard(stdout, str1, str2, str3);
     if (rc) {
         return (rc);
     }
-    rc = fprint_puzzle_array(stdout, board_array);
+    rc = fprint_puzzle_array_standard(stdout, board_array);
 
     return (rc);
 }
