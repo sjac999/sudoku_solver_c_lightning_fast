@@ -320,7 +320,8 @@ fprint_puzzle_file_linear(FILE *output_fd, char *str1, char *str2, char *str3,
         for (col=0; col < NUM_HORIZ_CELLS; col++) {
             val = board_array[row][col];
 
-            if (val >= 0 && val <= 9) {
+            /* unsigned val always >= 0 */
+            if (val <= 9) {
                 fputc(val + '0', output_fd);
             } else {
                 fputc('?', output_fd);
