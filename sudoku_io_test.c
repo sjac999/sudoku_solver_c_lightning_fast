@@ -152,7 +152,7 @@ usage(int argc, char **argv)
     printf("   -i:		specify input filename (standard format)\n");
     printf("   -I:		specify input filename (linear format)\n");
     printf("   -o:		specify output filename (standard format)\n");
-    printf("   -O:		specify output filename (standard format)\n");
+    printf("   -O:		specify output filename (linear format)\n");
     printf("   -p:		process input; don't just copy\n");
     printf("   -s:		silent mode level\n");
     printf("   -V:		print version string and exit\n");
