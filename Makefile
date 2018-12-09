@@ -4,8 +4,8 @@
 
 # gcc for Linux, cc for FreeBSD
 CC	= cc
-# Runs 2 to 3 as fast with -O3
-CFLAGS	= -Wall -O0 -g
+# Runs 2 to 3 as fast with -O3 as with -O0
+CFLAGS	= -Wall -O3 -g
 
 all:
 	$(CC) $(CFLAGS) -c sudoku.c
