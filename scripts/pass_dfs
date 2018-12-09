@@ -1,4 +1,12 @@
 #!/bin/sh
+#
+# This script uses depth-first recursion with a maximum depth of
+# 3 levels, which is unnecessary.  The puzzles below, which require
+# DFS, only need 2 levels of recursion.  Since computation can grow
+# exponentially with number of levels of recursion, depending on the
+# puzzle, this script takes substantially longer to run than it
+# would with -D2.
+#
 
 SUDOKU="../sudoku"
 FLAGS="-r -D 3 -s 2"
@@ -6,7 +14,7 @@ PDIR="../puzzles1"
 
 #
 # Solved as of 05/04/18, using DFS as needed.
-# These puzzles previously passed without DFS.
+# These puzzles previously passed without BFS or DFS.
 #
 for PNAME in g1 g2                                    \
 	m1 m2 m3 m4 m5 m6 m7 m8 m9                    \
@@ -33,8 +41,8 @@ do
 done
 
 #
-# Solved as of 05/04/18, using DFS as needed.
-# These puzzles previously failed (without DFS).
+# Solved as of 05/04/18, using BFS as needed.
+# These puzzles previously failed (without BFS).
 #
 for PNAME in                                          \
 	d7 u5s6 d10 l4-1                              \
@@ -61,12 +69,33 @@ for PNAME in                                          \
 	l4-70 md-1 md-4 md-6 mep1 me-1 me-2           \
 	me-3 me-4 me-5 me-6 me-7 me-8 me-9 me-10      \
 	l3-77 l3-78 l3-80 l4-71 l4-72 l4-73 l4-74     \
-	l4-75 l4-76 un-4 un-6 un-8 un-10 un-1 un-2    \
+	l4-75 l4-76 un-4 un-6 un-8 un-10              \
+	un-12 un-14 un-16 un-18 un-20 un-24 un-28     \
+	un-30 un-32 un-34 un-35 un-38 un-40 un-43     \
+	un-44 un-45 un-46 un-49 un-50 un-54           \
+	exo-1 exo-2 un-57 un-58 un-60 un-62 un-64     \
+	un-66 un-67 un-68                             \
+	un-74 un-76 un-77 un-78 un-80 un-82 un-84     \
+	un-86 un-88 un-90 un-91 un-95 un-96 un-98     \
+	un-100 un-102 un-103 un-104
+do
+	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
+#
+# Solved as of 12/09/18, using DFS as needed.
+# These puzzles previously failed (without DFS).
+#
+for PNAME in                                          \
+	un-1 un-2                                     \
 	un-3 un-5 un-7 un-9 es-1 ink-1 lvl3-1         \
 	un-11 un-13 un-15 un-17 un-19 un-21 un-22     \
 	un-23 un-25 un-26 un-27 un-29 un-31 un-33     \
 	un-36 un-37 un-39 un-41 un-42 un-47 un-48     \
-	un-52 un-53
+	un-52 un-53 un-55 un-56 un-59 un-63 un-65     \
+	un-69 un-70 un-71 un-72 un-73 un-75 un-79     \
+	un-81 un-83 un-85 un-87 un-89 un-92 un-94     \
+	un-97 un-99 un-101
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
