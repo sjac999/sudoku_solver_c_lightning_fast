@@ -64,7 +64,12 @@ for PNAME in                                          \
 	l4-75 l4-76 un-4 un-6 un-8 un-10              \
 	un-12 un-14 un-16 un-18 un-20 un-24 un-28     \
 	un-30 un-32 un-34 un-35 un-38 un-40 un-43     \
-	un-44 un-45 un-46 un-49 un-50 un-54
+	un-44 un-45 un-46 un-49 un-50 un-54           \
+	exo-1 exo-2 un-57 un-58 un-60 un-62 un-64     \
+	un-66 un-67 un-68                             \
+	un-74 un-76 un-77 un-78 un-80 un-82 un-84     \
+	un-86 un-88 un-90 un-91 un-95 un-96 un-98     \
+	un-100 un-102 un-103 un-104
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
