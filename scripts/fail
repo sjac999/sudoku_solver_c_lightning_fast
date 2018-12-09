@@ -358,3 +358,64 @@ $SUDOKU $FLAGS -f $PDIR/un-50.txt
 $SUDOKU $FLAGS -f $PDIR/un-52.txt
 $SUDOKU $FLAGS -f $PDIR/un-53.txt
 $SUDOKU $FLAGS -f $PDIR/un-54.txt
+
+# Algorithmic solver cannot fully solve at this time, 07/28/18.
+$SUDOKU $FLAGS -f $PDIR/exo-1.txt
+$SUDOKU $FLAGS -f $PDIR/exo-2.txt
+$SUDOKU $FLAGS -f $PDIR/un-55.txt
+$SUDOKU $FLAGS -f $PDIR/un-56.txt
+$SUDOKU $FLAGS -f $PDIR/un-57.txt
+$SUDOKU $FLAGS -f $PDIR/un-58.txt
+$SUDOKU $FLAGS -f $PDIR/un-59.txt
+$SUDOKU $FLAGS -f $PDIR/un-60.txt
+$SUDOKU $FLAGS -f $PDIR/un-61.txt
+$SUDOKU $FLAGS -f $PDIR/un-62.txt
+$SUDOKU $FLAGS -f $PDIR/un-63.txt
+$SUDOKU $FLAGS -f $PDIR/un-64.txt
+$SUDOKU $FLAGS -f $PDIR/un-65.txt
+$SUDOKU $FLAGS -f $PDIR/un-66.txt
+$SUDOKU $FLAGS -f $PDIR/un-67.txt
+$SUDOKU $FLAGS -f $PDIR/un-68.txt
+
+# Algorithmic solver cannot fully solve at this time, 11/25/18.
+$SUDOKU $FLAGS -f $PDIR/un-69.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-70.txt
+$SUDOKU $FLAGS -f $PDIR/un-71.txt
+$SUDOKU $FLAGS -f $PDIR/un-72.txt
+$SUDOKU $FLAGS -f $PDIR/un-73.txt
+$SUDOKU $FLAGS -f $PDIR/un-74.txt
+$SUDOKU $FLAGS -f $PDIR/un-75.txt
+$SUDOKU $FLAGS -f $PDIR/un-76.txt
+$SUDOKU $FLAGS -f $PDIR/un-77.txt
+$SUDOKU $FLAGS -f $PDIR/un-78.txt
+$SUDOKU $FLAGS -f $PDIR/un-79.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-80.txt
+$SUDOKU $FLAGS -f $PDIR/un-81.txt
+$SUDOKU $FLAGS -f $PDIR/un-82.txt
+$SUDOKU $FLAGS -f $PDIR/un-83.txt
+$SUDOKU $FLAGS -f $PDIR/un-84.txt
+$SUDOKU $FLAGS -f $PDIR/un-85.txt
+$SUDOKU $FLAGS -f $PDIR/un-86.txt
+$SUDOKU $FLAGS -f $PDIR/un-87.txt
+$SUDOKU $FLAGS -f $PDIR/un-88.txt
+$SUDOKU $FLAGS -f $PDIR/un-89.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-90.txt
+$SUDOKU $FLAGS -f $PDIR/un-91.txt
+$SUDOKU $FLAGS -f $PDIR/un-92.txt
+$SUDOKU $FLAGS -f $PDIR/un-93.txt
+$SUDOKU $FLAGS -f $PDIR/un-94.txt
+$SUDOKU $FLAGS -f $PDIR/un-95.txt
+$SUDOKU $FLAGS -f $PDIR/un-96.txt
+$SUDOKU $FLAGS -f $PDIR/un-97.txt
+$SUDOKU $FLAGS -f $PDIR/un-98.txt
+$SUDOKU $FLAGS -f $PDIR/un-99.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-100.txt
+$SUDOKU $FLAGS -f $PDIR/un-101.txt
+$SUDOKU $FLAGS -f $PDIR/un-102.txt
+$SUDOKU $FLAGS -f $PDIR/un-103.txt
+$SUDOKU $FLAGS -f $PDIR/un-104.txt
+
