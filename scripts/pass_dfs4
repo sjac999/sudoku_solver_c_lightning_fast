@@ -44,6 +44,12 @@ done
 # Note:  un-36 un-37 un-39 un-41 un-42 un-43 un-44 un-46 un-47
 #        un-48 un-49 un-50 un-52 un-53 un-54
 #        are not on this list.
+# Note:  exo-1 un-55 un-56 un-57 un-58 un-59 un-60
+#        un-61 un-63 un-65 un-67 are not on this list.
+# Note:  un-70 un-71 un-73 un-75 un-77 un-78 un-79 un-80 un-81
+#        un-82 un-83 un-86 un-87 un-88 un-89 un-91 un-92 un-93
+#        un-94 un-95 un-96 un-97 un-99 un-101 un-102 un-103
+#        un-104 are not on this list.
 #
 for PNAME in                                          \
 	d7 u5s6 d10 l4-1                              \
@@ -72,7 +78,10 @@ for PNAME in                                          \
 	l3-77 l3-78 l3-80 l4-71 l4-72 l4-73 l4-74     \
 	l4-75 l4-76 un-10 ink-1                       \
 	un-16 un-18 un-19 un-24 un-30 un-32 un-35     \
-	un-38 un-40 un-45
+	un-38 un-40 un-45                             \
+	exo-2 un-62 un-64 un-66 un-68                 \
+	un-69 un-72 un-74 un-76 un-84 un-85 un-90     \
+	un-98 un-100
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
