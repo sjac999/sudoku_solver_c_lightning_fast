@@ -24,8 +24,8 @@ $SUDOKU $FLAGS -r -D 30 -f $PDIR/l4-27.test4.txt
 # Solved quickly with deeper recursion.
 $SUDOKU $FLAGS -r -D 30 -f $PDIR/l4-27.test5.txt
 
-#
-# No timely solution found to the following as of 04/21/18:
-#
-#$SUDOKU $FLAGS -r -D 40 -f $PDIR/l4-27.test6.txt
+# The following completes in a fraction of a second.
+$SUDOKU $FLAGS -r -D 40 -f $PDIR/l4-27.test6.txt
+# The following usually completes in a fraction of a second.
+#$SUDOKU $FLAGS -r -D 34 -I -f $PDIR/l4-27.test6.txt
 
