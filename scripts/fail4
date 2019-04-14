@@ -42,7 +42,11 @@ for PNAME in                                        \
 	un-66 un-67 un-68                           \
 	un-74 un-76 un-77 un-78 un-80 un-82 un-84   \
 	un-86 un-88 un-90 un-91 un-95 un-96 un-98   \
-	un-100 un-102 un-103 un-104
+	un-100 un-102 un-103 un-104                 \
+	un-106 un-108 un-110 un-112 un-114 un-120   \
+	un-122 un-124 un-126 un-128 un-132 un-134   \
+	un-136 un-138 un-140 un-145 un-147 un-149   \
+	un-151 un-153
 do
         $SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
@@ -58,7 +62,11 @@ for PNAME in                                        \
 	un-55 un-56 un-59 un-63 un-65               \
 	un-69 un-70 un-71 un-72 un-73 un-75 un-79   \
 	un-81 un-83 un-85 un-87 un-89 un-92 un-94   \
-	un-97 un-99 un-101
+	un-97 un-99 un-101                          \
+	un-105 un-107 un-109 un-111 un-113 un-115   \
+	un-116 un-117 un-118 un-119 un-121 un-123   \
+	un-125 un-127 un-129 un-130 un-131 un-133   \
+	un-135 un-141 un-143 un-148 un-150
 do
         $SUDOKU $FLAGS_B -f $PDIR/$PNAME.txt
 done
@@ -67,7 +75,9 @@ done
 # These puzzles currently require -r -D 3 to pass
 #
 for PNAME in                                        \
-	lvl3-1 un-17 un-22 un-61 un-93
+	lvl3-1 un-17 un-22 un-61 un-93              \
+	un-127 un-137 un-139 un-142 un-144 un-146   \
+	un-152 un-154
 do
         $SUDOKU $FLAGS_D2 -f $PDIR/$PNAME.txt
 done

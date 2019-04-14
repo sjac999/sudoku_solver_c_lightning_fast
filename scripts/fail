@@ -419,3 +419,60 @@ $SUDOKU $FLAGS -f $PDIR/un-102.txt
 $SUDOKU $FLAGS -f $PDIR/un-103.txt
 $SUDOKU $FLAGS -f $PDIR/un-104.txt
 
+# Algorithmic solver cannot fully solve at this time, 04/13/19.
+$SUDOKU $FLAGS -f $PDIR/un-105.txt
+$SUDOKU $FLAGS -f $PDIR/un-106.txt
+$SUDOKU $FLAGS -f $PDIR/un-107.txt
+$SUDOKU $FLAGS -f $PDIR/un-108.txt
+$SUDOKU $FLAGS -f $PDIR/un-109.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-110.txt
+$SUDOKU $FLAGS -f $PDIR/un-111.txt
+$SUDOKU $FLAGS -f $PDIR/un-112.txt
+$SUDOKU $FLAGS -f $PDIR/un-113.txt
+$SUDOKU $FLAGS -f $PDIR/un-114.txt
+$SUDOKU $FLAGS -f $PDIR/un-115.txt
+$SUDOKU $FLAGS -f $PDIR/un-116.txt
+$SUDOKU $FLAGS -f $PDIR/un-117.txt
+$SUDOKU $FLAGS -f $PDIR/un-118.txt
+$SUDOKU $FLAGS -f $PDIR/un-119.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-120.txt
+$SUDOKU $FLAGS -f $PDIR/un-121.txt
+$SUDOKU $FLAGS -f $PDIR/un-122.txt
+$SUDOKU $FLAGS -f $PDIR/un-123.txt
+$SUDOKU $FLAGS -f $PDIR/un-124.txt
+$SUDOKU $FLAGS -f $PDIR/un-125.txt
+$SUDOKU $FLAGS -f $PDIR/un-126.txt
+$SUDOKU $FLAGS -f $PDIR/un-127.txt
+$SUDOKU $FLAGS -f $PDIR/un-128.txt
+$SUDOKU $FLAGS -f $PDIR/un-129.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-130.txt
+$SUDOKU $FLAGS -f $PDIR/un-131.txt
+$SUDOKU $FLAGS -f $PDIR/un-132.txt
+$SUDOKU $FLAGS -f $PDIR/un-133.txt
+$SUDOKU $FLAGS -f $PDIR/un-134.txt
+$SUDOKU $FLAGS -f $PDIR/un-135.txt
+$SUDOKU $FLAGS -f $PDIR/un-136.txt
+$SUDOKU $FLAGS -f $PDIR/un-137.txt
+$SUDOKU $FLAGS -f $PDIR/un-138.txt
+$SUDOKU $FLAGS -f $PDIR/un-139.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-140.txt
+$SUDOKU $FLAGS -f $PDIR/un-141.txt
+$SUDOKU $FLAGS -f $PDIR/un-142.txt
+$SUDOKU $FLAGS -f $PDIR/un-143.txt
+$SUDOKU $FLAGS -f $PDIR/un-144.txt
+$SUDOKU $FLAGS -f $PDIR/un-145.txt
+$SUDOKU $FLAGS -f $PDIR/un-146.txt
+$SUDOKU $FLAGS -f $PDIR/un-147.txt
+$SUDOKU $FLAGS -f $PDIR/un-148.txt
+$SUDOKU $FLAGS -f $PDIR/un-149.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-150.txt
+$SUDOKU $FLAGS -f $PDIR/un-151.txt
+$SUDOKU $FLAGS -f $PDIR/un-152.txt
+$SUDOKU $FLAGS -f $PDIR/un-153.txt
+$SUDOKU $FLAGS -f $PDIR/un-154.txt
+
