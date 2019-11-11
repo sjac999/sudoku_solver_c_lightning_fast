@@ -476,3 +476,85 @@ $SUDOKU $FLAGS -f $PDIR/un-152.txt
 $SUDOKU $FLAGS -f $PDIR/un-153.txt
 $SUDOKU $FLAGS -f $PDIR/un-154.txt
 
+$SUDOKU $FLAGS -f $PDIR/un-155.txt
+$SUDOKU $FLAGS -f $PDIR/un-156.txt
+$SUDOKU $FLAGS -f $PDIR/un-157.txt
+$SUDOKU $FLAGS -f $PDIR/un-158.txt
+$SUDOKU $FLAGS -f $PDIR/un-159.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-160.txt
+$SUDOKU $FLAGS -f $PDIR/un-161.txt
+$SUDOKU $FLAGS -f $PDIR/un-162.txt
+$SUDOKU $FLAGS -f $PDIR/un-163.txt
+$SUDOKU $FLAGS -f $PDIR/un-164.txt
+$SUDOKU $FLAGS -f $PDIR/un-165.txt
+$SUDOKU $FLAGS -f $PDIR/un-166.txt
+$SUDOKU $FLAGS -f $PDIR/un-167.txt
+$SUDOKU $FLAGS -f $PDIR/un-168.txt
+$SUDOKU $FLAGS -f $PDIR/un-169.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-170.txt
+$SUDOKU $FLAGS -f $PDIR/un-171.txt
+$SUDOKU $FLAGS -f $PDIR/un-172.txt
+$SUDOKU $FLAGS -f $PDIR/un-173.txt
+$SUDOKU $FLAGS -f $PDIR/un-174.txt
+$SUDOKU $FLAGS -f $PDIR/un-175.txt
+$SUDOKU $FLAGS -f $PDIR/un-176.txt
+$SUDOKU $FLAGS -f $PDIR/un-177.txt
+$SUDOKU $FLAGS -f $PDIR/un-178.txt
+$SUDOKU $FLAGS -f $PDIR/un-179.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-180.txt
+$SUDOKU $FLAGS -f $PDIR/un-181.txt
+$SUDOKU $FLAGS -f $PDIR/un-182.txt
+$SUDOKU $FLAGS -f $PDIR/un-183.txt
+$SUDOKU $FLAGS -f $PDIR/un-184.txt
+$SUDOKU $FLAGS -f $PDIR/un-185.txt
+$SUDOKU $FLAGS -f $PDIR/un-186.txt
+$SUDOKU $FLAGS -f $PDIR/un-187.txt
+$SUDOKU $FLAGS -f $PDIR/un-188.txt
+$SUDOKU $FLAGS -f $PDIR/un-189.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-190.txt
+$SUDOKU $FLAGS -f $PDIR/un-191.txt
+$SUDOKU $FLAGS -f $PDIR/un-192.txt
+$SUDOKU $FLAGS -f $PDIR/un-193.txt
+$SUDOKU $FLAGS -f $PDIR/un-194.txt
+$SUDOKU $FLAGS -f $PDIR/un-195.txt
+$SUDOKU $FLAGS -f $PDIR/un-196.txt
+$SUDOKU $FLAGS -f $PDIR/un-197.txt
+$SUDOKU $FLAGS -f $PDIR/un-198.txt
+$SUDOKU $FLAGS -f $PDIR/un-199.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-200.txt
+$SUDOKU $FLAGS -f $PDIR/un-201.txt
+$SUDOKU $FLAGS -f $PDIR/un-202.txt
+$SUDOKU $FLAGS -f $PDIR/un-203.txt
+$SUDOKU $FLAGS -f $PDIR/un-204.txt
+$SUDOKU $FLAGS -f $PDIR/un-205.txt
+$SUDOKU $FLAGS -f $PDIR/un-206.txt
+$SUDOKU $FLAGS -f $PDIR/un-207.txt
+$SUDOKU $FLAGS -f $PDIR/un-208.txt
+$SUDOKU $FLAGS -f $PDIR/un-209.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-210.txt
+$SUDOKU $FLAGS -f $PDIR/un-211.txt
+$SUDOKU $FLAGS -f $PDIR/un-212.txt
+$SUDOKU $FLAGS -f $PDIR/un-213.txt
+$SUDOKU $FLAGS -f $PDIR/un-214.txt
+$SUDOKU $FLAGS -f $PDIR/un-215.txt
+$SUDOKU $FLAGS -f $PDIR/un-216.txt
+$SUDOKU $FLAGS -f $PDIR/un-217.txt
+$SUDOKU $FLAGS -f $PDIR/un-218.txt
+$SUDOKU $FLAGS -f $PDIR/un-219.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-220.txt
+$SUDOKU $FLAGS -f $PDIR/un-221.txt
+$SUDOKU $FLAGS -f $PDIR/un-222.txt
+$SUDOKU $FLAGS -f $PDIR/un-223.txt
+$SUDOKU $FLAGS -f $PDIR/un-224.txt
+$SUDOKU $FLAGS -f $PDIR/un-225.txt
+$SUDOKU $FLAGS -f $PDIR/un-226.txt
+$SUDOKU $FLAGS -f $PDIR/un-227.txt
+$SUDOKU $FLAGS -f $PDIR/un-228.txt
+
