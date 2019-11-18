@@ -46,7 +46,12 @@ for PNAME in                                        \
 	un-106 un-108 un-110 un-112 un-114 un-120   \
 	un-122 un-124 un-126 un-128 un-132 un-134   \
 	un-136 un-138 un-140 un-145 un-147 un-149   \
-	un-151 un-153
+	un-151 un-153                               \
+	un-157 un-159 un-164 un-166 un-168 un-170   \
+	un-173 un-178 un-181 un-183 un-185 un-189   \
+	un-191 un-195 un-197 un-199 un-205 un-207   \
+	un-209 un-211 un-214 un-216 un-218 un-220   \
+	un-222 un-224 un-226 un-228
 do
         $SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
@@ -66,7 +71,14 @@ for PNAME in                                        \
 	un-105 un-107 un-109 un-111 un-113 un-115   \
 	un-116 un-117 un-118 un-119 un-121 un-123   \
 	un-125 un-127 un-129 un-130 un-131 un-133   \
-	un-135 un-141 un-143 un-148 un-150
+	un-135 un-141 un-143 un-148 un-150          \
+	un-155 un-163 un-165 un-167 un-169          \
+	un-171 un-174 un-175 un-176 un-177 un-179   \
+	un-180 un-182 un-184 un-186 un-187 un-188   \
+	un-190 un-194 un-196 un-198 un-200 un-201   \
+	un-202 un-204 un-206 un-208 un-210 un-212   \
+	un-213 un-215 un-217 un-219 un-221 un-223   \
+	un-225 un-227
 do
         $SUDOKU $FLAGS_B -f $PDIR/$PNAME.txt
 done
@@ -77,7 +89,9 @@ done
 for PNAME in                                        \
 	lvl3-1 un-17 un-22 un-61 un-93              \
 	un-127 un-137 un-139 un-142 un-144 un-146   \
-	un-152 un-154
+	un-152 un-154                               \
+	un-156 un-158 un-160 un-161 un-162          \
+	un-172 un-192 un-193 un-203
 do
         $SUDOKU $FLAGS_D2 -f $PDIR/$PNAME.txt
 done
