@@ -1,0 +1,10 @@
+#!/bin/sh
+
+../sudoku -f ../puzzles1/l3-5.txt -s 3
+if [ $? -eq 0 ]
+then
+	echo "Puzzle solved!"
+else
+	echo "Puzzle not solved!"
+fi
+
