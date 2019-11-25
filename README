@@ -2,7 +2,7 @@
 Sudoku Solver Program in C:  Lightning Fast
 ===========================================
 Steve Jacobson
-June 04, 2018
+November 24, 2019
 
 
 Introduction:
@@ -33,10 +33,10 @@ example of which is below.  This is ./puzzles1/l3-5.txt.
 7,.,., .,.,9, .,.,2
 .,.,., 5,7,., .,.,.
 
-The format is a fairly visual representation of a printed puzzle; the data
-lines are in a mandatory rigid format.  "#" prefaces an optional comment
-line, the entirety of which is disregarded by the program.  Commas and
-spaces in data lines are separators, and must appear as shown.  "."
+This (standard) format is a visual representation of a printed puzzle; the
+data lines are in a mandatory rigid format.  "#" prefaces an optional
+comment line, the entirety of which is disregarded by the program.  Commas
+and spaces in data lines are separators, and must appear as shown.  "."
 represents a cell which has no value specified.  Integers 0-9 represent
 cells with initially specified values.
 
@@ -54,14 +54,15 @@ To compile the program:
 To obtain help from the program:
 --------------------------------
 
-stevej@bsd84:~/sudoku % ./sudoku -h
+stevej@bsd11_2:~/sudoku % ./sudoku -h
 
 usage: ./sudoku [-?hbIrRV] [-d <debug flags>] [-D <max depth>]
-           [-i <start index>] [-s <silent level>] -f <file name>
+           [-i <start index>] [-s <silent level>] -fF <file name>
   -b:           try breadth-first search if needed
   -d:           set debug flags
   -D:           maximum depth for depth-first recursion
-  -f:           specify puzzle filename
+  -f:           specify puzzle filename (standard format)
+  -F:           specify puzzle filename (linear format)
   -?h:          print help and exit
   -i:           specify starting index for puzzle search
   -I:           enable random starting index for puzzle search
@@ -69,7 +70,7 @@ usage: ./sudoku [-?hbIrRV] [-d <debug flags>] [-D <max depth>]
   -R:           use only recursive descent (unimplemented)
   -s:           silent mode level
   -V:           print version string and exit
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 
 Running the program using the basic algorithmic solver:
@@ -78,11 +79,12 @@ Running the program using the basic algorithmic solver:
 Here is an example of running the sudoku solver program on the l3-5.txt
 puzzle, shown above.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
 
-"-f ./puzzles1/l3-5.txt" specifies the puzzle file to be solved.
+"-f ./puzzles1/l3-5.txt" specifies the standard format puzzle file to
+be solved.
 
-"-s 1" specifies the level of silence (the opposite of verbocity).
+"-s 1" specifies the level of silence (the opposite of verbosity).
 "-s 0" prints more chatter about the algorithms solving the puzzle than
 will interest most users.  "-s 1" prints the starting and ending states
 of the puzzle, followed by a summary of the solution.  In this case the
@@ -128,7 +130,7 @@ The above represents a single row of the puzzle.  It also contains
 nine cells.
 
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
 =============================================================================================================
 |   3       | 123456789 | 123456789 | 123456789 |  2        |        8  | 123456789 | 123456789 | 1         |
 |  2        | 123456789 | 123456789 |         9 | 123456789 | 123456789 | 123456789 |    4      |     5     |
@@ -157,22 +159,38 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 1
 =============================================================================================================
 >>>>>> ./puzzles1/l3-5.txt solved, sane!
     Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 
 "-s 2" prints only the summary.  It is useful for scripting, and/or
 when you are testing modifications to the program.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
 >>>>>> ./puzzles1/l3-5.txt solved, sane!
     Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-"-s 3" prints nothing.  It is useful only for scripting, which can rely
-on the status value returned when the program completes.
+"-s 3" prints nothing.  It is useful for shell scripts, which can make
+control decisions based on the status value returned when the sudoku
+program completes.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
+stevej@bsd11_2:~/sudoku %
+
+stevej@bsd11_2:~/cvs_sudoku/sudoku % cd scripts
+stevej@bsd11_2:~/cvs_sudoku/sudoku/scripts % cat quick_test
+#!/bin/sh
+
+../sudoku -f ../puzzles1/l3-5.txt -s 3
+if [ $? -eq 0 ]
+then
+        echo "Puzzle solved!"
+else
+        echo "Puzzle not solved!"
+fi
+
+stevej@bsd11_2:~/cvs_sudoku/sudoku/scripts % sh quick_test
+Puzzle solved!
 
 
 Running the program, intermediate use:
@@ -188,24 +206,24 @@ sufficient.  If the algorithms do not solve the puzzle, it makes and
 tests one guess at a time, then re-applies the algorithms.  It is
 effectively a recursive descent solver with a single level of recursion.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
 
 "-b" enables the breadth-first search solver, if needed.  Breadth-first
 search is only invoked if the basic algorithmic solver fails to arrive
 at a solution.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2
-*** ./puzzles1/l4-1.txt not solved, sane!  Solution failed!
-    Iterations:  6.  Changes:  Rows 169, cols 139, squares 79, tot 387
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2
+*** ./puzzles1/l4-1.txt NOT solved, sane!  Solution failed!
+    Iterations:  6.  Changes:  Rows 170, cols 139, squares 86, tot 395
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b
 >>>>>> ./puzzles1/l4-1.txt solved, sane!
-    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+    Iterations:  11.  Changes:  Rows 185, cols 152, squares 94, tot 431
         bfs:  cells 2, values 3
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1
 =============================================================================================================
 | 123456789 | 123456789 | 123456789 |   3       | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
 | 123456789 | 1         | 123456789 | 123456789 | 123456789 | 123456789 |   3       |    4      |     5     |
@@ -220,9 +238,9 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1
 | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |    4      | 123456789 | 123456789 | 123456789 |
 =============================================================================================================
 =============================================================================================================
-|  2    7   |    4      |     56 8  |   3       | 1   567   |  2    78  |  2   6  9 |      6 89 | 1     7   |
-|  2    7   | 1         |      6 8  |  2   6    |      67 9 |  2    789 |   3       |    4      |     5     |
-|   3       |         9 |     56 8  | 12  56    |    4      |  2    78  |  2   6    |      6 8  | 1     7   |
+|  2    7   |    4      |     56    |   3       | 1   5     |  2    78  |  2   6  9 |      6 89 | 1     7   |
+|  2    7   | 1         |        8  |  2   6    |      67 9 |  2    7 9 |   3       |    4      |     5     |
+|   3       |         9 |     56    | 1   5     |    4      |  2    78  |  2   6    |      6 8  | 1     7   |
 =============================================================================================================
 |    4      |   3       |  2        |         9 |        8  | 1         |     5     |       7   |      6    |
 |      6    |        8  |       7   |    4      |  2        |     5     | 1         |   3       |         9 |
@@ -232,11 +250,12 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1
 |        8  |       7   |    4      | 1    6    | 1    6  9 |   3       |      6  9 |     5     |  2        |
 |     5   9 |  2        | 1         |        8  |     56  9 |    4      |       7   |      6  9 |   3       |
 =============================================================================================================
-*** ./puzzles1/l4-1.txt not solved, sane!  Solution failed!
-    Iterations:  6.  Changes:  Rows 169, cols 139, squares 79, tot 387
-stevej@bsd84:~/sudoku %
+*** ./puzzles1/l4-1.txt NOT solved, sane!  Solution failed!
+    Iterations:  6.  Changes:  Rows 170, cols 139, squares 86, tot 395
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1 -b
+
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1 -b
 =============================================================================================================
 | 123456789 | 123456789 | 123456789 |   3       | 123456789 | 123456789 | 123456789 | 123456789 | 123456789 |
 | 123456789 | 1         | 123456789 | 123456789 | 123456789 | 123456789 |   3       |    4      |     5     |
@@ -264,27 +283,28 @@ stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 1 -b
 |         9 |  2        | 1         |        8  |     5     |    4      |       7   |      6    |   3       |
 =============================================================================================================
 >>>>>> ./puzzles1/l4-1.txt solved, sane!
-    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+    Iterations:  11.  Changes:  Rows 185, cols 152, squares 94, tot 431
         bfs:  cells 2, values 3
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 
 Running the program, advanced use:
 ----------------------------------
 
-So far, all newspaper and Internet-available puzzles tested have been
+So far, all newspaper and most Internet-available puzzles tested have been
 solved by the algorithmic solver alone, or by the algorithms + breadth-first
-search.  However, more complicated puzzles can be contrived; they can be
-solved with the recursive descent feature.  It must be used with caution,
-however, as the amount of computation can grow exponentially with the
-number of levels of recursion; it depends entirely on the puzzle.
-Solutions have been measured as taking from milliseconds to days, with the
-possibility of taking weeks, months or years.
+search.  However, more complicated puzzles can be found, such as the
+"unsolvable" puzzles on certain websites; they can be solved with the
+recursive descent feature.  It must be used with caution, however, as the
+amount of computation can grow exponentially with the number of levels of
+recursion; it depends entirely on the puzzle.  Solutions have been measured
+as taking from milliseconds to days, with the possibility of taking weeks,
+months or years.
 
 The following program invocations test variants of l4-27.txt, from
 which some of the specified values have been removed.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
 
 "-r" specifies recursive descent, if needed because the basic algorithms
 fail to arrive at a solution.
@@ -292,41 +312,41 @@ fail to arrive at a solution.
 "-D 20" permits recursion to a depth of 20 levels.  The default is -D 4.
 Note that "-r -D 1" is roughly equivalent to "-b".
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2
-*** ./puzzles_test1/l4-27.test1.txt not solved, sane!  Solution failed!
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2
+*** ./puzzles_test1/l4-27.test1.txt NOT solved, sane!  Solution failed!
     Iterations:  5.  Changes:  Rows 158, cols 140, squares 73, tot 371
-stevej@bsd84:~/sudoku % 
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -b
-*** ./puzzles_test1/l4-27.test1.txt not solved, sane!  Solution failed!
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -b
+*** ./puzzles_test1/l4-27.test1.txt NOT solved, sane!  Solution failed!
     Iterations:  5.  Changes:  Rows 158, cols 140, squares 73, tot 371
         bfs:  cells 40, values 117
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test1.txt -s 2 -r
 >>>>>> ./puzzles_test1/l4-27.test1.txt solved, sane!
     Iterations:  17.  Changes:  Rows 184, cols 166, squares 93, tot 443
         dfs:  cells 4 vals 4 rec 3 bt 0 ns 0 mrl 3
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 With the more difficult "l4-27.test2.txt" puzzle:
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2
-*** ./puzzles_test1/l4-27.test2.txt not solved, sane!  Solution failed!
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2
+*** ./puzzles_test1/l4-27.test2.txt NOT solved, sane!  Solution failed!
     Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b
-*** ./puzzles_test1/l4-27.test2.txt not solved, sane!  Solution failed!
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b
+*** ./puzzles_test1/l4-27.test2.txt NOT solved, sane!  Solution failed!
     Iterations:  2.  Changes:  Rows 90, cols 91, squares 40, tot 221
         bfs:  cells 67, values 382
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 20
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -r -D 20
 >>>>>> ./puzzles_test1/l4-27.test2.txt solved, sane!
-    Iterations:  44.  Changes:  Rows 175, cols 227, squares 103, tot 505
+    Iterations:  44.  Changes:  Rows 174, cols 226, squares 105, tot 505
         dfs:  cells 16 vals 17 rec 15 bt 0 ns 1 mrl 15
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 
 Specifying both breadth-first and recursive descent searches:
@@ -346,23 +366,23 @@ puzzle, then recursive descent testing is not done.
 If both the algorithmic solver and breadth-first testing fail to solve
 the puzzle, then recursive descent testing is performed.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l3-1.txt -s 2 -b -r -D 20
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-1.txt -s 2 -b -r -D 20
 >>>>>> ./puzzles1/l3-1.txt solved, sane!
-    Iterations:  10.  Changes:  Rows 189, cols 179, squares 88, tot 456
-stevej@bsd84:~/sudoku %
+    Iterations:  9.  Changes:  Rows 195, cols 178, squares 83, tot 456
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b -r -D 20
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-1.txt -s 2 -b -r -D 20
 >>>>>> ./puzzles1/l4-1.txt solved, sane!
-    Iterations:  11.  Changes:  Rows 182, cols 152, squares 96, tot 430
+    Iterations:  11.  Changes:  Rows 185, cols 152, squares 94, tot 431
         bfs:  cells 2, values 3
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b -r -D 20
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles_test1/l4-27.test2.txt -s 2 -b -r -D 20
 >>>>>> ./puzzles_test1/l4-27.test2.txt solved, sane!
-    Iterations:  44.  Changes:  Rows 175, cols 227, squares 103, tot 505
+    Iterations:  44.  Changes:  Rows 174, cols 226, squares 105, tot 505
         bfs:  cells 67, values 382
         dfs:  cells 16 vals 17 rec 15 bt 0 ns 1 mrl 15
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 
 Specifying a starting cell index when running:
@@ -383,9 +403,9 @@ many days to solve under default conditions.  To give a better chance of
 finding a solution, the cell at which testing starts can be changed in
 one of two ways.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 
 "-i 41" causes testing to start at, in this example, cell 41 instead of
 the default cell 0.  The starting point will be cell 41 for every single
@@ -395,34 +415,104 @@ level of the recursion.
 the recursion.  A new cell index is chosen at each recursion level.
 Possible values for the cell index are in the range 0 - 80, inclusive.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2
 ^C
 
 The invocation above was not completing in a reasonable amount of time,
 so it was halted with ctrl-C.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -i 41
 >>>>>> ./puzzles1/l4-19.txt solved, sane!
-    Iterations:  12.  Changes:  Rows 186, cols 166, squares 106, tot 458
+    Iterations:  12.  Changes:  Rows 184, cols 166, squares 108, tot 458
         dfs:  cells 2 vals 7 rec 1 bt 0 ns 5 mrl 1
-stevej@bsd84:~/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 The invocation above completed immediately as a result of adding "-i 41".
 Note that some experimentation was needed to find a value (41) leading to
 success with this puzzle.
 
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 ^C
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 ^C
-stevej@bsd84:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l4-19.txt -r -D 20 -s 2 -I
 >>>>>> ./puzzles1/l4-19.txt solved, sane!
-    Iterations:  14.  Changes:  Rows 193, cols 167, squares 100, tot 460
-        dfs:  cells 3 vals 3 rec 2 bt 0 ns 0 mrl 2
-stevej@bsd84:~/sudoku %
+    Iterations:  13.  Changes:  Rows 189, cols 163, squares 108, tot 460
+        dfs:  cells 2 vals 4 rec 1 bt 0 ns 2 mrl 1
+stevej@bsd11_2:~/sudoku %
 
 Using "-I", the program had to be invoked three times (in this particular
 example) before the program completed quickly.  Since the cell index at
 every level is random, not pseudo-random, results will likely differ with
 every test run.
+
+
+Summary output fields:
+----------------------
+
+Preface to summary line:
+  - solved and sane:          >>>>>>
+  - not solved, but sane:     ***
+  - not solved and not sane:  ******
+
+Summary line
+  - solved:  Every cell contains exactly one value.
+  - NOT solved:  Not every cell contains a single value.
+  - sane:  Every determined value is unique in the row, column and square
+      that contains it.
+  - NOT sane:  At least one determined value is not unique within a row,
+      column and/or square.
+
+Iterations:  Number of times the algorithmic solver was applied to
+  all rows, columns and squares of the puzzle.
+
+Changes:  The number of times a possible value is eliminated in a cell.
+  - rows:  Number of eliminations in analysis of rows.
+  - cols:  Number of eliminations in analysis of columns.
+  - squares:  Number of eliminations in analysis of squares.
+  - tot:  Total number of changes in rows, columns and squares.
+
+BFS fields:
+  - cells:  Total number of cells where values were guessed.
+  - vals:  Total number of values tried in guessed cells.
+
+DFS fields:
+  - cells:  Total number of cells where values were guessed.
+  - vals:  Total number of values tried in guessed cells.
+  - rec:  Total number of recursions.
+  - bt:  Total number of backtracks.
+  - ns:  Number of paths that were found to not be sane.
+  - mrl:  Maximum number of recursion levels reached.
+
+
+Linear file format:
+-------------------
+
+The sudoku program accepts an alternate input file format, the linear file.
+Linear input is popular on certain websites due to its single line format.
+Each cell is represented by a single character; 0-9 specifies the cell
+value, with 0 indicating an unspecified cell.
+
+The sudoku_io_test program can be used to convert from standard to linear,
+and from linear to standard formats.  The following example converts the
+standard puzzle file l3-5.txt to linear file l3-5.lin.
+
+stevej@bsd11_2:~/git_sudoku % ./sudoku_io_test -i ./puzzles1/l3-5.txt -O ./puzzles1/l3-5.lin
+stevej@bsd11_2:~/git_sudoku % cat ./puzzles1/l3-5.lin
+300028001200900045900000000000250600006000300008013000000000409700009002000570000
+stevej@bsd11_2:~/git_sudoku %
+
+To run the file,
+
+stevej@bsd11_2:~/cvs_sudoku/sudoku % ./sudoku -F ./puzzles1/l3-5.lin -s 2
+>>>>>> ./puzzles1/l3-5.lin solved, sane!
+    Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
+stevej@bsd11_2:~/cvs_sudoku/sudoku %
+
+For comparison,
+
+stevej@bsd11_2:~/cvs_sudoku/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
+>>>>>> ./puzzles1/l3-5.txt solved, sane!
+    Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
+stevej@bsd11_2:~/cvs_sudoku/sudoku %
 
