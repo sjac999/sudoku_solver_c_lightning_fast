@@ -2,7 +2,7 @@
 Sudoku Solver Program in C:  Lightning Fast
 ===========================================
 Steve Jacobson
-November 24, 2019
+November 25, 2019
 
 
 Introduction:
@@ -294,7 +294,7 @@ Running the program, advanced use:
 So far, all newspaper and most Internet-available puzzles tested have been
 solved by the algorithmic solver alone, or by the algorithms + breadth-first
 search.  However, more complicated puzzles can be found, such as the
-"unsolvable" puzzles on certain websites; they can be solved with the
+"unsolvable" puzzles on certain websites, that can only be solved using the
 recursive descent feature.  It must be used with caution, however, as the
 amount of computation can grow exponentially with the number of levels of
 recursion; it depends entirely on the puzzle.  Solutions have been measured
