@@ -122,7 +122,8 @@ read_puzzle_file_standard(FILE *input_fd,
     uint4    row;
     uint4    col;
     char     line_str[9][10];
-    char     test_str[10];
+    char     test_str1[10];
+    char     test_str2[10];
     uint4    col_val;
     uint4    num_rows_read = 0;
     uint4    cindx;
@@ -146,22 +147,51 @@ read_puzzle_file_standard(FILE *input_fd,
             printd(D_INPUT, "### Comment or blank line:  Disregarding\n");
             continue;
         }
-        scnt = sscanf(input_buf, "%[0-9. ],%[0-9. ],%[0-9. ],"
-             "%[0-9. ],%[0-9. ],%[0-9. ],%[0-9. ],%[0-9. ],%[0-9. ]",
+        /*
+         * Parse one horizontal line from the input file.
+         * Comment lines and blank lines were disregarded, above.
+         * The last two characters read are to detect spurious
+         * characters at the end of the line.  The first of the
+         * two characters is the newline, and will always be read.
+         * If the second character is read, there is junk appended
+         * to the line.  Therefore the correct count is
+         * scnt == (NUM_HORIZ_CELLS + 1)
+         */
+        scnt = sscanf(input_buf,
+             "%1[0-9.],%1[0-9.],%1[0-9.],%*1[ ]"
+             "%1[0-9.],%1[0-9.],%1[0-9.],%*1[ ]"
+             "%1[0-9.],%1[0-9.],%1[0-9.]"
+             "%1c%1c",
              line_str[0], line_str[1], line_str[2],
              line_str[3], line_str[4], line_str[5],
-             line_str[6], line_str[7], line_str[8]);
+             line_str[6], line_str[7], line_str[8],
+             test_str1, test_str2);
         printd(D_INPUT, "scnt = %d\n", scnt);
 
-        if (scnt != NUM_HORIZ_CELLS) {
+        if (scnt > (NUM_HORIZ_CELLS + 1)) {
             fclose(input_fd);
+            /* line has spurious characters appended */
+            printf("Spurious character(s) appended to input file line!\n");
+            return (-1);
+        }
+        if (scnt != (NUM_HORIZ_CELLS + 1)) {
+            fclose(input_fd);
+            /* line is malformed in some way */
+            printf("Input file line is malformed!\n");
             return (-2);
         }
         if (num_rows_read >= NUM_VERT_CELLS) {
             fclose(input_fd);
+            /* too many rows */
+            printf("Input file contains too many rows!\n");
             return (-3);
         }
 
+        /*
+         * Read the column values from the horizontal line accepted above.
+         * If the syntax and the values are correct, store them in the
+         * board array.
+         */
         for (col=0; col < NUM_HORIZ_CELLS; col++) {
             cindx = 0;
             /* skip all leading ' ' if present */
@@ -169,30 +199,39 @@ read_puzzle_file_standard(FILE *input_fd,
                 cindx++;
             }
 
-            /* read and disregard "." entries */
-            scnt = sscanf(&line_str[col][cindx], "%[.]", test_str);
+            /* read and disregard "." (unspecified) entries */
+            scnt = sscanf(&line_str[col][cindx], "%[.]", test_str1);
             if (scnt == 1) {
                 printd(D_INPUT, "    scnt = %d, . found\n", scnt);
                 continue;
             }
-            /* read and store "0-9" entries */
+            /* read and store "0-9" entry */
             scnt = sscanf(line_str[col], "%u", &col_val);
             printd(D_INPUT, "    scnt = %d, col_val = %u\n", scnt, col_val);
             if (scnt != 1) {
                 fclose(input_fd);
+                printf("Number read from input file caused error!\n");
                 return (-4);
             }
             if ((col_val < 1) || (col_val > NUM_HORIZ_CELLS)) {
                 fclose(input_fd);
+                /* number read is out of range */
+                printf("Number read from input file is out of range!\n");
                 return (-5);
             }
             /*
              * Save the range-checked value into the intermediate format
-             * array.  All unspecified cells will be set to 0.
+             * array.  All unspecified cells were previously set to 0.
              */
             board_array[num_rows_read][col] = (char)col_val;
         }
         num_rows_read++;
+    }
+    if (num_rows_read < NUM_VERT_CELLS) {
+        fclose(input_fd);
+        /* too few rows */
+        printf("Input file contains too few rows!\n");
+        return (-6);
     }
 
     return (0);

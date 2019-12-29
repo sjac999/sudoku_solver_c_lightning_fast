@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.93 2018/07/08 07:53:04 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.95 2019/12/15 04:19:22 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -853,8 +853,6 @@ sudoku_init(void)
     printd_init(&(game->dprint), "./logs/sudoku_log");
 
     board_init(game->board_curr);
-
-    //print_cell_coordinates(game->board_curr);
 
     return (game);
 }
