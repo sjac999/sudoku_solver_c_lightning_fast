@@ -557,4 +557,19 @@ $SUDOKU $FLAGS -f $PDIR/un-225.txt
 $SUDOKU $FLAGS -f $PDIR/un-226.txt
 $SUDOKU $FLAGS -f $PDIR/un-227.txt
 $SUDOKU $FLAGS -f $PDIR/un-228.txt
+$SUDOKU $FLAGS -f $PDIR/un-229.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-230.txt
+$SUDOKU $FLAGS -f $PDIR/un-231.txt
+$SUDOKU $FLAGS -f $PDIR/un-232.txt
+$SUDOKU $FLAGS -f $PDIR/un-233.txt
+$SUDOKU $FLAGS -f $PDIR/un-234.txt
+$SUDOKU $FLAGS -f $PDIR/un-235.txt
+$SUDOKU $FLAGS -f $PDIR/un-236.txt
+$SUDOKU $FLAGS -f $PDIR/un-237.txt
+$SUDOKU $FLAGS -f $PDIR/un-238.txt
+$SUDOKU $FLAGS -f $PDIR/un-239.txt
+
+$SUDOKU $FLAGS -f $PDIR/un-240.txt
+$SUDOKU $FLAGS -f $PDIR/un-241.txt
 
