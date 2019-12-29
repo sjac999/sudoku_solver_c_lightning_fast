@@ -6,8 +6,8 @@ PDIR="../puzzles1"
 
 #
 # Solved using two levels of DFS.  These puzzles
-# require two levels of guessing with the current
-# algorithmic solver.
+# require two levels of guessing (-r -D 2) with the
+# current algorithmic solver.
 # Note:  Removed un-36 un-82 un-102 11/17/19, as
 # they only require -b for solution.
 #
@@ -28,7 +28,8 @@ for PNAME in                                          \
 	un-186 un-187 un-188 un-190 un-194 un-196     \
 	un-198 un-200 un-201 un-202 un-204 un-206     \
 	un-208 un-210 un-212 un-213 un-215 un-217     \
-	un-219 un-221 un-223 un-225 un-227
+	un-219 un-221 un-223 un-225 un-227 un-231     \
+	un-232 un-234 un-236 un-237 un-238 un-240
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
