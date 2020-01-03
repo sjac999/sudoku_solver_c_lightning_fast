@@ -97,3 +97,12 @@ do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
 
+#
+# Solved on 01/01/20 or later
+#
+for PNAME in                                          \
+	l4-87 l4-97 l4-98 l4-103 l4-107
+do
+	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
