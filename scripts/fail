@@ -573,3 +573,44 @@ $SUDOKU $FLAGS -f $PDIR/un-239.txt
 $SUDOKU $FLAGS -f $PDIR/un-240.txt
 $SUDOKU $FLAGS -f $PDIR/un-241.txt
 
+# Algorithmic solver cannot fully solve at this time, 01/02/20.
+$SUDOKU $FLAGS -f $PDIR/l4-77.txt
+$SUDOKU $FLAGS -f $PDIR/l4-78.txt
+$SUDOKU $FLAGS -f $PDIR/l4-79.txt
+
+$SUDOKU $FLAGS -f $PDIR/l4-80.txt
+$SUDOKU $FLAGS -f $PDIR/l4-81.txt
+$SUDOKU $FLAGS -f $PDIR/l4-82.txt
+$SUDOKU $FLAGS -f $PDIR/l4-83.txt
+$SUDOKU $FLAGS -f $PDIR/l4-84.txt
+$SUDOKU $FLAGS -f $PDIR/l4-85.txt
+$SUDOKU $FLAGS -f $PDIR/l4-86.txt
+$SUDOKU $FLAGS -f $PDIR/l4-88.txt
+$SUDOKU $FLAGS -f $PDIR/l4-89.txt
+
+$SUDOKU $FLAGS -f $PDIR/l4-90.txt
+$SUDOKU $FLAGS -f $PDIR/l4-91.txt
+$SUDOKU $FLAGS -f $PDIR/l4-92.txt
+$SUDOKU $FLAGS -f $PDIR/l4-93.txt
+$SUDOKU $FLAGS -f $PDIR/l4-94.txt
+$SUDOKU $FLAGS -f $PDIR/l4-95.txt
+$SUDOKU $FLAGS -f $PDIR/l4-96.txt
+$SUDOKU $FLAGS -f $PDIR/l4-99.txt
+
+$SUDOKU $FLAGS -f $PDIR/l4-100.txt
+$SUDOKU $FLAGS -f $PDIR/l4-101.txt
+$SUDOKU $FLAGS -f $PDIR/l4-102.txt
+$SUDOKU $FLAGS -f $PDIR/l4-104.txt
+$SUDOKU $FLAGS -f $PDIR/l4-105.txt
+$SUDOKU $FLAGS -f $PDIR/l4-106.txt
+$SUDOKU $FLAGS -f $PDIR/l4-108.txt
+$SUDOKU $FLAGS -f $PDIR/l4-109.txt
+
+$SUDOKU $FLAGS -f $PDIR/l4-110.txt
+$SUDOKU $FLAGS -f $PDIR/l4-111.txt
+$SUDOKU $FLAGS -f $PDIR/l4-112.txt
+$SUDOKU $FLAGS -f $PDIR/l4-113.txt
+$SUDOKU $FLAGS -f $PDIR/l4-114.txt
+$SUDOKU $FLAGS -f $PDIR/l4-115.txt
+$SUDOKU $FLAGS -f $PDIR/l4-116.txt
+
