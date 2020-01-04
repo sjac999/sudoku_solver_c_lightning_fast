@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# Tests each puzzle at exactly the level it requires to pass
+# the solver.  This verifies that any changes in the solver
+# have not caused any regressions.
+#
+
+SUDOKU="../sudoku"
+FLAGS="-s 2"
+FLAGS_B="-s 2 -b"
+FLAGS_D1="-s 2 -r -D 1"
+FLAGS_D2="-s 2 -r -D 2"
+FLAGS_D3="-s 2 -r -D 3"
+PDIR="../puzzles1"
+
+#
+# These puzzles are currently solved without any
+# help from "-b" or "-r -D n".
+#
+for PNAME in g1 g2                                    \
+	m1 m2 m3 m4 m5 m6 m7 m8 m9                    \
+	m10 m11 m12 m14 m15 m16 m17 m18 m19           \
+	m20 m21 m22 m23                               \
+	u3s1 u5s1 u4s1 u5s2 u5s3 u5s4 u5s5 u5s7       \
+	d1 d2 d5 d6 d3 d8                             \
+	l2-1 l3-1 l3-2 l3-3 l3-4 l3-5 l3-6 l3-7       \
+	l3-8 l3-9 l3-11 l3-12 l3-14 l3-15 l3-16 l3-17 \
+	l3-18 l3-19 l3-20 l3-23 l3-26 l3-27 l3-28     \
+	l3-30 l3-32 l3-33 l3-34 l3-35                 \
+	cp3-1 cp4-1 cp4-2 cp4-3 cp4-4 cp4-5           \
+	cp5-1 cp5-2                                   \
+	m13 d9 l3-36 l3-37 cp4-6 l3-38                \
+	l3-40 l3-41 l3-42 l3-43 l3-46                 \
+	l3-48 l3-50 l3-51 l3-53 l3-55 l3-56           \
+	l3-59 l3-61 l3-62 cp4-7 cp5-3 l3-63           \
+	l3-66 l3-67 l3-68                             \
+	l3-69 l3-70 l3-71 l3-72 l3-73 l3-74           \
+	l3-75 l3-76 l2-2 md-2 md-3 md-5 ws-1 l3-79    \
+	d4 l3-10 l3-29 un-51                          \
+	l4-87 l4-97 l4-98 l4-103 l4-107
+do
+	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
+done
+
+#
+# These puzzles currently require "-r -D 1" or "-b" to pass
+#
+for PNAME in                                        \
+	d7 u5s6 d10 l4-1 l4-2 l4-3 l4-4 l4-5 l4-6   \
+	l4-7 l4-8 l4-9 l4-10 l4-11 l4-12 l4-13      \
+	l4-14 l4-15 l4-16 l4-17 l4-18 l4-19 l3-13   \
+	l4-20 l3-21 l3-22 l3-24 l3-25 l3-31 l4-21   \
+	l4-22 l4-23 l4-24 l4-25 l4-26 l4-27 l3-39   \
+	l4-28 l3-44 l4-29 l4-30 l3-45 l4-31 l4-32   \
+	l4-33 l4-34 l4-35 l4-36 l4-37 l4-38 l4-39   \
+	l4-40 l3-47 l3-49 l3-52 l3-54 l3-57 l3-58   \
+	l3-60 l4-41 l4-42 l4-43 l4-44 l4-45 l4-46   \
+	l4-47 l4-48 l4-49 l4-50 l4-51 l4-52 l3-64   \
+	l3-65 l4-53 l4-54 l4-55 l4-56 l4-57 l4-58   \
+	l4-59 l4-60 l4-61 l4-62 l4-63 l4-64 l4-64   \
+	l4-65 l4-66 l4-67 l4-68 l4-69 l4-70 l4-71   \
+	md-1 md-4 md-6 me-1 me-2 me-3 me-4 me-5     \
+	me-6 me-7 me-8 me-9 me-10 mep1 l3-77 l3-78  \
+	l3-80 l4-72 l4-73 l4-74 l4-75 l4-76         \
+	un-4 un-6 un-8 un-10 un-12 un-14 un-16      \
+	un-18 un-20 un-24 un-28 un-30 un-32 un-34   \
+	un-35 un-36 un-38 un-40 un-43 un-44 un-45   \
+	un-46 un-49 un-50 un-54                     \
+	exo-1 exo-2 un-57 un-58 un-60 un-62 un-64   \
+	un-66 un-67 un-68                           \
+	un-74 un-76 un-77 un-78 un-80 un-82 un-84   \
+	un-86 un-88 un-90 un-91 un-95 un-96 un-98   \
+	un-100 un-102 un-103 un-104                 \
+	un-106 un-108 un-110 un-112 un-114 un-120   \
+	un-122 un-124 un-126 un-128 un-132 un-134   \
+	un-136 un-138 un-140 un-145 un-147 un-149   \
+	un-151 un-153                               \
+	un-157 un-159 un-164 un-166 un-168 un-170   \
+	un-173 un-178 un-181 un-183 un-185 un-189   \
+	un-191 un-195 un-197 un-199 un-205 un-207   \
+	un-209 un-211 un-214 un-216 un-218 un-220   \
+	un-222 un-224 un-226 un-228                 \
+	un-230 un-233 un-235 un-239 un-241          \
+	l4-77 l4-78 l4-79 l4-80 l4-81 l4-82 l4-83   \
+	l4-84 l4-85 l4-86 l4-88 l4-89 l4-90 l4-91   \
+	l4-92 l4-93 l4-94 l4-95 l4-96 l4-99 l4-100  \
+	l4-101 l4-102 l4-104 l4-105 l4-106 l4-108   \
+	l4-109 l4-110 l4-111 l4-112 l4-113 l4-114   \
+	l4-115 l4-116
+do
+        $SUDOKU $FLAGS_B -f $PDIR/$PNAME.txt
+done
+
+#
+# These puzzles currently require "-r -D 2" to pass
+#
+for PNAME in                                        \
+	un-1 un-2 un-3 un-5 un-7 un-9 es-1 ink-1    \
+	un-11 un-13 un-15 un-19 un-21 un-23 un-25   \
+	un-26 un-27 un-29 un-31 un-33 un-37 un-39   \
+	un-41 un-42 un-47 un-48 un-52 un-53         \
+	un-55 un-56 un-59 un-63 un-65               \
+	un-69 un-70 un-71 un-72 un-73 un-75 un-79   \
+	un-81 un-83 un-85 un-87 un-89 un-92 un-94   \
+	un-97 un-99 un-101                          \
+	un-105 un-107 un-109 un-111 un-113 un-115   \
+	un-116 un-117 un-118 un-119 un-121 un-123   \
+	un-125 un-129 un-130 un-131 un-133          \
+	un-135 un-141 un-143 un-148 un-150          \
+	un-155 un-163 un-165 un-167 un-169          \
+	un-171 un-174 un-175 un-176 un-177 un-179   \
+	un-180 un-182 un-184 un-186 un-187 un-188   \
+	un-190 un-194 un-196 un-198 un-200 un-201   \
+	un-202 un-204 un-206 un-208 un-210 un-212   \
+	un-213 un-215 un-217 un-219 un-221 un-223   \
+	un-225 un-227 un-231 un-232 un-234 un-236   \
+	un-237 un-238 un-240
+do
+        $SUDOKU $FLAGS_D2 -f $PDIR/$PNAME.txt
+done
+
+#
+# These puzzles currently require "-r -D 3" to pass
+#
+for PNAME in                                        \
+	lvl3-1 un-17 un-22 un-61 un-93              \
+	un-127 un-137 un-139 un-142 un-144 un-146   \
+	un-152 un-154                               \
+	un-156 un-158 un-160 un-161 un-162          \
+	un-172 un-192 un-193 un-203 un-229
+do
+        $SUDOKU $FLAGS_D3 -f $PDIR/$PNAME.txt
+done
+
