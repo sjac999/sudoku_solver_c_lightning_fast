@@ -29,7 +29,9 @@ for PNAME in                                          \
 	un-198 un-200 un-201 un-202 un-204 un-206     \
 	un-208 un-210 un-212 un-213 un-215 un-217     \
 	un-219 un-221 un-223 un-225 un-227 un-231     \
-	un-232 un-234 un-236 un-237 un-238 un-240
+	un-232 un-234 un-236 un-237 un-238 un-240     \
+	un-242 un-243 un-244 un-245 un-250 un-251     \
+	un-253 un-254 un-258 un-259 un-260
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
