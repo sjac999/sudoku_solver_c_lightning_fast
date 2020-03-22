@@ -97,14 +97,16 @@ for PNAME in                                          \
 	l4-92 l4-93 l4-94 l4-95 l4-96 l4-99 l4-100    \
 	l4-101 l4-102 l4-104 l4-105 l4-106 l4-108     \
 	l4-109 l4-110 l4-111 l4-112 l4-113 l4-114     \
-	l4-115 l4-116
+	l4-115 l4-116                                 \
+	un-246 un-248 un-249 un-252 un-255 un-257     \
+	un-261 un-263
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
 
 #
 # Solved using two levels of DFS.  These puzzles
-# require wo levels of guessing with the current
+# require two levels of guessing with the current
 # algorithmic solver.  These puzzles previously
 # failed without (-r -D 2) DFS.
 #
@@ -126,7 +128,9 @@ for PNAME in                                          \
 	un-198 un-200 un-201 un-202 un-204 un-206     \
 	un-208 un-210 un-212 un-213 un-215 un-217     \
 	un-219 un-221 un-223 un-225 un-227 un-231     \
-	un-232 un-234 un-236 un-237 un-238 un-240
+	un-232 un-234 un-236 un-237 un-238 un-240     \
+	un-242 un-243 un-244 un-245 un-250 un-251     \
+	un-253 un-254 un-258 un-259 un-260
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
@@ -142,7 +146,8 @@ for PNAME in                                          \
 	un-61 un-93 un-127 un-137 un-139 un-142       \
 	un-144 un-146 un-152 un-154                   \
 	un-156 un-158 un-160 un-161 un-162 un-172     \
-	un-192 un-193 un-203 un-229
+	un-192 un-193 un-203 un-229                   \
+	un-247 un-256 un-262
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
