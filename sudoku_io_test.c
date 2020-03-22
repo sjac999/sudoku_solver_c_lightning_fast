@@ -308,7 +308,7 @@ output_array_values(prog_info_t *pi)
 
     if (0 == pi->dprint->silent_level) {
         print_puzzle_file("Source:  ", "Date:    ", "Level:   ",
-            pi->output_board_array);
+            pi->out_file_format, pi->output_board_array);
     }
 
     rc = fprint_puzzle_file(pi->output_fd, pi->out_file_format,

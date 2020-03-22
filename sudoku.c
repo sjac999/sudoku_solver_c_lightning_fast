@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.95 2019/12/15 04:19:22 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.96 2020/03/09 06:51:38 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -533,7 +533,8 @@ game_init(game_t *game)
     game->board_curr = game->board_head;
     board_set_pointers(game->board_curr, game, NULL, NULL);
 
-    game->filename = NULL;
+    game->in_filename = NULL;
+    game->out_filename = NULL;
     game->game_flags = 0;
     game->max_num_recursion_levels = DEFAULT_MAX_NUM_RECURSION_LEVELS;
     game->initial_start_index = 0;
@@ -560,8 +561,11 @@ game_cleanup(game_t *game)
     board_t   *board_tail;
     board_t   *board_tmp;
 
-    if (game->filename) {
-        free(game->filename);
+    if (game->in_filename) {
+        free(game->in_filename);
+    }
+    if (game->out_filename) {
+        free(game->out_filename);
     }
     if (game->recurse_stats) {
         free(game->recurse_stats);
@@ -897,6 +901,29 @@ set_cell_value(cell_t *cell, uint4 value)
 }
 
 /*
+ * Get the value contained in a cell.
+ * - if undetermined cell, returns 0
+ * - if determined cell, returns value
+ * - else returns INVALID_VALUE
+ */
+uint4
+get_cell_value(cell_t *cell)
+{
+    uint4     value;
+
+    if (1 != cell->num_possible_values) {
+        return (0);
+    }
+    value = get_lowest_cell_value(cell);
+
+    if (DIMENSION_SIZE >= value) {
+        return (value);
+    }
+
+    return (INVALID_VALUE);
+}
+
+/*
  * If set, clear the specified value in a cell and decrement the count
  */
 bool
@@ -1101,6 +1128,24 @@ set_cell_value_board(board_t *board, uint4 row, uint4 col, uint4 value)
 }
 
 /*
+ * Get the value contained in a cell in a board.
+ * - if undetermined cell, returns 0
+ * - if determined cell, returns value
+ * - else returns INVALID_VALUE
+ */
+uint4
+get_cell_value_board(board_t *board, uint4 row, uint4 col)
+{
+    cell_t    *cell;
+    uint4     value;
+
+    cell = &board->x_y_board[row][col];
+    value = get_cell_value(cell);
+
+    return (value);
+}
+
+/*
  * Returns TRUE if both cells contain the exact same values,
  * else FALSE.
  */
@@ -1225,11 +1270,13 @@ usage(int argc, char **argv)
         "  -b:		try breadth-first search if needed\n"
         "  -d:		set debug flags\n"
         "  -D:		maximum depth for depth-first recursion\n"
-        "  -f:		specify puzzle filename (standard format)\n"
-        "  -F:		specify puzzle filename (linear format)\n"
+        "  -f:		specify puzzle input filename (standard format)\n"
+        "  -F:		specify puzzle input filename (linear format)\n"
         "  -?h:		print help and exit\n"
         "  -i:		specify starting index for puzzle search\n"
         "  -I:		enable random starting index for puzzle search\n"
+        "  -o:		specify puzzle output filename (standard format)\n"
+        "  -O:		specify puzzle output filename (linear format)\n"
         "  -r:		try recursive descent if needed\n"
         "  -R:		use only recursive descent (unimplemented)\n"
         "  -s:		silent mode level\n"
@@ -1249,7 +1296,7 @@ input_puzzle_file(game_t *game, FILE *input_fd)
     enum input_file_format file_format;
 
     file_format = input_standard;
-    if (game->game_flags & LINEAR_FILE_FORMAT) {
+    if (game->game_flags & LINEAR_FILE_FORMAT_IN) {
         file_format = input_linear;
     }
 
@@ -1278,6 +1325,52 @@ input_puzzle_file(game_t *game, FILE *input_fd)
 }
 
 /*
+ * Writes the current state of the game board to the output file.
+ * For standard file format, prepends the array data with a generic header.
+ */
+void
+output_puzzle_file(game_t *game)
+{
+    uint4    intermediate_board_format[NUM_VERT_CELLS][NUM_HORIZ_CELLS];
+    FILE     *output_fd;
+    uint4    row;
+    uint4    col;
+    uint4    value;
+    enum output_file_format out_file_format;
+
+    output_fd = fopen(game->out_filename, "wx");
+    if (!output_fd) {
+        printd(D_CRIT, "\n*** Output file \"%s\" already exists!\n",
+          game->out_filename);
+        return;
+    }
+
+    out_file_format = output_standard;
+    if (game->game_flags & LINEAR_FILE_FORMAT_OUT) {
+        out_file_format = output_linear;
+    }
+
+    /*
+     * Convert the current board values to intermediate format.
+     */
+    for (row=0; row < NUM_VERT_CELLS; row++) {
+        for (col=0; col < NUM_HORIZ_CELLS; col++) {
+            value = get_cell_value_board(game->board_curr, row, col);
+            intermediate_board_format[row][col] = value;
+        }
+    }
+
+    if (0 == game->dprint.silent_level) {
+        print_puzzle_file("Source:  ", "Date:    ", "Level:   ",
+          out_file_format, intermediate_board_format);
+    }
+
+    fprint_puzzle_file(output_fd, out_file_format,
+      "Source:  ", "Date:    ", "Level:   ",
+      intermediate_board_format);
+}
+
+/*
  * Processes command line arguments.
  * Loads values from input file to game structure.
  */
@@ -1287,7 +1380,7 @@ input_values(int argc, char **argv, game_t *game)
     FILE     *input_fd;
     int      opt;
     char     *fname = "----";
-    char     *filename = NULL;
+    char     *in_filename = NULL;
     uint4    debug = 0;
     uint4    levels;
     char     *endptr;
@@ -1301,7 +1394,7 @@ input_values(int argc, char **argv, game_t *game)
     /*
      * Command line options handling
      */
-    while ((opt = getopt(argc, argv, "?bd:D:f:F:hi:IrRs:V")) != EOF) {
+    while ((opt = getopt(argc, argv, "?bd:D:f:F:hi:Io:O:rRs:V")) != EOF) {
         switch (opt) {
         case 'b':
             game->game_flags |= BREADTH_FIRST_1LR;
@@ -1312,7 +1405,8 @@ input_values(int argc, char **argv, game_t *game)
                 game->dprint.flags = debug;
             } else {
                 printf("Invalid debug flags 0x%x\n", debug);
-                free(filename);
+                free(in_filename);
+                free(game->out_filename);
                 return (-1);
             }
             break;
@@ -1322,16 +1416,17 @@ input_values(int argc, char **argv, game_t *game)
                 game->max_num_recursion_levels = levels;
             } else {
                 printf("Invalid recursion levels %d\n", levels);
-                free(filename);
+                free(in_filename);
+                free(game->out_filename);
                 return (-1);
             }
             break;
         case 'f':
-            filename = strdup(optarg);
+            in_filename = strdup(optarg);
             break;
         case 'F':
-            filename = strdup(optarg);
-            game->game_flags |= LINEAR_FILE_FORMAT;
+            in_filename = strdup(optarg);
+            game->game_flags |= LINEAR_FILE_FORMAT_IN;
             break;
         case 'i':
             levels = strtoul(optarg, &endptr, 0);
@@ -1339,12 +1434,14 @@ input_values(int argc, char **argv, game_t *game)
                 game->initial_start_index = levels;
             } else {
                 printf("Invalid start index %d\n", levels);
-                free(filename);
+                free(in_filename);
+                free(game->out_filename);
                 return (-1);
             }
             if (TOT_NUM_CELLS <= levels) {
                 printf("Start index too large %d\n", levels);
-                free(filename);
+                free(in_filename);
+                free(game->out_filename);
                 return (-1);
             }
             game->initial_start_index = levels;
@@ -1352,6 +1449,13 @@ input_values(int argc, char **argv, game_t *game)
         case 'I':
             game->game_flags |= RANDOM_START_INDEX;
             seed_random_number_generator();
+            break;
+        case 'o':
+            game->out_filename = strdup(optarg);
+            break;
+        case 'O':
+            game->out_filename = strdup(optarg);
+            game->game_flags |= LINEAR_FILE_FORMAT_OUT;
             break;
         case 'r':
             game->game_flags |= REC_DESCENT;
@@ -1365,37 +1469,41 @@ input_values(int argc, char **argv, game_t *game)
                 game->dprint.silent_level = levels;
             } else {
                 printf("Invalid silent level %d\n", levels);
-                free(filename);
+                free(in_filename);
+                free(game->out_filename);
                 return (-1);
             }
             break;
         case 'V':
             printf("Version:  %s\n", rcsid);
-            free(filename);
+            free(in_filename);
+            free(game->out_filename);
             return (1);
             break;
         case 'h':
         case '?':
             usage(argc, argv);
-            free(filename);
+            free(in_filename);
+            free(game->out_filename);
             return (1);
             break;
         }
     }
-    if (!filename) {
-        filename = strdup(fname);
+    if (!in_filename) {
+        in_filename = strdup(fname);
     }
 
-    printd(D_INPUT, "input filename:  %s\n", filename);
+    printd(D_INPUT, "input filename:  %s\n", in_filename);
 
-    input_fd = fopen(filename, "r");
+    input_fd = fopen(in_filename, "r");
     if (!input_fd) {
-        printd(D_CRIT, "\n*** File \"%s\" does not exist!\n", filename);
-        free(filename);
+        printd(D_CRIT, "\n*** File \"%s\" does not exist!\n", in_filename);
+        free(in_filename);
+        free(game->out_filename);
         return (-1);
     }
 
-    game->filename = filename;
+    game->in_filename = in_filename;
 
     /*
      * Reads the input file and populates the initial board in the game
@@ -3135,7 +3243,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
      */
 search_complete:
     if (0 == game->dprint.silent_level) {
-        printf("BFS:  %s %s%s!\n", game->filename,
+        printf("BFS:  %s %s%s!\n", game->in_filename,
             (solved ? "solved" : "not solved"),
             (sane ? ", sane" : ""));
         printf("    BFS:  Iter %u; "
@@ -3403,7 +3511,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
      */
 search_complete:
     if (0 == game->dprint.silent_level) {
-        printf("DFS:  %s %s%s!\n", game->filename,
+        printf("DFS:  %s %s%s!\n", game->in_filename,
             (solved ? "solved" : "not solved"),
             (sane ? ", sane" : ", not sane"));
         printf("    DFS:  Iter %u; "
@@ -3514,7 +3622,7 @@ main(int argc, char **argv)
     }
 
     if (0 == game->dprint.silent_level) {
-        printf("ALG:  %s %s%s!\n", game->filename,
+        printf("ALG:  %s %s%s!\n", game->in_filename,
             (solved ? "solved" : "not solved"),
             (sane ? ", sane" : ""));
         printf("    Iterations:  %u.  "
@@ -3607,7 +3715,7 @@ main(int argc, char **argv)
         printf("%s%s %s %s%s!  %s\n",
             ((solved && sane) ? ">>>>>>" : "***"),
             ((!solved && !sane) ? "***" : ""),
-            game->filename,
+            game->in_filename,
             (solved ? "solved" : "NOT solved"),
             (sane ? ", sane" : ", NOT sane"),
             ((solved && sane) ? "" : "Solution failed!"));
@@ -3628,6 +3736,11 @@ main(int argc, char **argv)
                 game->recurse_stats->tot_num_not_sane,
                 game->recurse_stats->max_recursion_levels);
         }
+    }
+
+    /* Outputs current game board values to a file, if requested by user */
+    if (game->out_filename) {
+        output_puzzle_file(game);
     }
 
     sudoku_cleanup(game);

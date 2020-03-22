@@ -410,15 +410,23 @@ fprint_puzzle_file(FILE *output_fd, enum output_file_format file_format,
  */
 int
 print_puzzle_file(char *str1, char *str2, char *str3,
+                  enum output_file_format file_format,
                   uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS])
 {
     int      rc;
 
+#ifdef REMOVED
     rc = fprint_puzzle_header_standard(stdout, str1, str2, str3);
     if (rc) {
         return (rc);
     }
     rc = fprint_puzzle_array_standard(stdout, board_array);
+#endif
+
+    rc = fprint_puzzle_file(stdout, file_format, str1, str2, str3, board_array);
+    if (rc) {
+        return (rc);
+    }
 
     return (rc);
 }

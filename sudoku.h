@@ -44,6 +44,8 @@ typedef unsigned long long         uint8;
 
 #define DEFAULT_MAX_NUM_RECURSION_LEVELS	4
 
+#define INVALID_VALUE              ((uint4)-1)
+
 /*
  * Defines for game->dprint.flags
  */
@@ -74,8 +76,10 @@ typedef unsigned long long         uint8;
 #define REC_DESCENT_ONLY           0x00000020
 /* Random starting cell index flag */
 #define RANDOM_START_INDEX         0x80000000
-/* Non-standard, linear puzzle file format */
-#define LINEAR_FILE_FORMAT         0x40000000
+/* Non-standard, linear puzzle file input format */
+#define LINEAR_FILE_FORMAT_IN      0x40000000
+/* Non-standard, linear puzzle file output format */
+#define LINEAR_FILE_FORMAT_OUT     0x20000000
 
 /* Controls verbocity (not currently used) */
 #define DS_SILENT                  0x00000001
@@ -183,8 +187,10 @@ typedef struct game_ {
      */
     board_t          *board_head;
     board_t          *board_curr;
-    /* malloced copy of the puzzle file name */
-    char             *filename;
+    /* malloced copy of the puzzle input file name */
+    char             *in_filename;
+    /* malloced copy of the puzzle output file name */
+    char             *out_filename;
     /* Debug print information */
     dprint_t         dprint;
     uint4            game_flags;

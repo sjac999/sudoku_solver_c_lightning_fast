@@ -8,7 +8,7 @@
 
 
 /*
- * Format of the input file.
+ * Format of the input and output files.
  */
 enum input_file_format {
     input_standard    = 0,
@@ -31,6 +31,7 @@ extern int print_puzzle_array(
 extern int read_puzzle_file(FILE *input_fd, enum input_file_format file_format,
                             uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS]);
 extern int print_puzzle_file(char *str1, char *str2, char *str3,
+                             enum output_file_format file_format,
                             uint4 board_array[NUM_VERT_CELLS][NUM_HORIZ_CELLS]);
 extern int fprint_puzzle_file(FILE *output_fd,
                               enum output_file_format file_format,
