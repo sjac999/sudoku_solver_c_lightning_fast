@@ -86,7 +86,9 @@ for PNAME in                                          \
 	l4-92 l4-93 l4-94 l4-95 l4-96 l4-99 l4-100    \
 	l4-101 l4-102 l4-104 l4-105 l4-106 l4-108     \
 	l4-109 l4-110 l4-111 l4-112 l4-113 l4-114     \
-	l4-115 l4-116
+	l4-115 l4-116                                 \
+	un-246 un-248 un-249 un-252 un-255 un-257     \
+	un-261 un-263
 do
 	$SUDOKU $FLAGS -f $PDIR/$PNAME.txt
 done
