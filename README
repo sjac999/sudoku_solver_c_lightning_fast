@@ -2,7 +2,7 @@
 Sudoku Solver Program in C:  Lightning Fast
 ===========================================
 Steve Jacobson
-November 25, 2019
+January 18, 2023
 
 
 Introduction:
@@ -37,7 +37,7 @@ This (standard) format is a visual representation of a printed puzzle; the
 data lines are in a mandatory rigid format.  "#" prefaces an optional
 comment line, the entirety of which is disregarded by the program.  Commas
 and spaces in data lines are separators, and must appear as shown.  "."
-represents a cell which has no value specified.  Integers 0-9 represent
+represents a cell which has no value specified.  Integers 1-9 represent
 cells with initially specified values.
 
 Note:  Setting the window width to 110 columns works best when running 
@@ -57,15 +57,18 @@ To obtain help from the program:
 stevej@bsd11_2:~/sudoku % ./sudoku -h
 
 usage: ./sudoku [-?hbIrRV] [-d <debug flags>] [-D <max depth>]
-           [-i <start index>] [-s <silent level>] -fF <file name>
+           [-i <start index>] [-s <silent level>]
+           -fF <input file name> [-oO <output file name>]
   -b:           try breadth-first search if needed
   -d:           set debug flags
   -D:           maximum depth for depth-first recursion
-  -f:           specify puzzle filename (standard format)
-  -F:           specify puzzle filename (linear format)
+  -f:           specify puzzle input filename (standard format)
+  -F:           specify puzzle input filename (linear format)
   -?h:          print help and exit
   -i:           specify starting index for puzzle search
   -I:           enable random starting index for puzzle search
+  -o:           specify puzzle output filename (standard format)
+  -O:           specify puzzle output filename (linear format)
   -r:           try recursive descent if needed
   -R:           use only recursive descent (unimplemented)
   -s:           silent mode level
@@ -95,7 +98,7 @@ the solution was actually sane.
 determined cell that contains, and can only contain, the value 3.
 
 "| 123456789 |" represents an undetermined single cell of the puzzle.
-It may ultimately contain any value in the range 0..9.  It is unknown
+It may ultimately contain any value in the range 1..9.  It is unknown
 at this time which one of those values it will end up containing.
 
 =====================================
@@ -171,14 +174,14 @@ stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
 stevej@bsd11_2:~/sudoku %
 
 "-s 3" prints nothing.  It is useful for shell scripts, which can make
-control decisions based on the status value returned when the sudoku
-program completes.
+control decisions based on the status value returned by the sudoku
+program when it completes.
 
 stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 3
 stevej@bsd11_2:~/sudoku %
 
-stevej@bsd11_2:~/cvs_sudoku/sudoku % cd scripts
-stevej@bsd11_2:~/cvs_sudoku/sudoku/scripts % cat quick_test
+stevej@bsd11_2:~/sudoku % cd scripts
+stevej@bsd11_2:~/sudoku/scripts % cat quick_test
 #!/bin/sh
 
 ../sudoku -f ../puzzles1/l3-5.txt -s 3
@@ -189,7 +192,7 @@ else
         echo "Puzzle not solved!"
 fi
 
-stevej@bsd11_2:~/cvs_sudoku/sudoku/scripts % sh quick_test
+stevej@bsd11_2:~/sudoku/scripts % sh quick_test
 Puzzle solved!
 
 
@@ -198,10 +201,10 @@ Running the program, intermediate use:
 
 Basic application of the program, as shown above, should solve all
 puzzles where repetitive application of the algorithms is sufficient.
-In other words, puzzles that do not require guessing.
+In other words, puzzles that do not require any guessing.
 
 For puzzles requiring guessing, there is a breadth-first (-b) option
-that can solve all puzzles where correctly guessing only one cell is
+that can solve all puzzles where correctly guessing one cell only is
 sufficient.  If the algorithms do not solve the puzzle, it makes and
 tests one guess at a time, then re-applies the algorithms.  It is
 effectively a recursive descent solver with a single level of recursion.
@@ -470,7 +473,7 @@ Changes:  The number of times a possible value is eliminated in a cell.
   - rows:  Number of eliminations in analysis of rows.
   - cols:  Number of eliminations in analysis of columns.
   - squares:  Number of eliminations in analysis of squares.
-  - tot:  Total number of changes in rows, columns and squares.
+  - tot:  Total number of eliminations in rows, columns and squares.
 
 BFS fields:
   - cells:  Total number of cells where values were guessed.
@@ -504,15 +507,16 @@ stevej@bsd11_2:~/git_sudoku %
 
 To run the file,
 
-stevej@bsd11_2:~/cvs_sudoku/sudoku % ./sudoku -F ./puzzles1/l3-5.lin -s 2
+stevej@bsd11_2:~/sudoku % ./sudoku -F ./puzzles1/l3-5.lin -s 2
 >>>>>> ./puzzles1/l3-5.lin solved, sane!
     Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
-stevej@bsd11_2:~/cvs_sudoku/sudoku %
+stevej@bsd11_2:~/sudoku %
 
 For comparison,
 
-stevej@bsd11_2:~/cvs_sudoku/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
+stevej@bsd11_2:~/sudoku % ./sudoku -f ./puzzles1/l3-5.txt -s 2
 >>>>>> ./puzzles1/l3-5.txt solved, sane!
     Iterations:  7.  Changes:  Rows 190, cols 145, squares 121, tot 456
-stevej@bsd11_2:~/cvs_sudoku/sudoku %
+stevej@bsd11_2:~/sudoku %
+
 
