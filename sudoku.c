@@ -3,7 +3,7 @@
  *
  * Steve Jacobson, 01/05/06
  *
- * Copyright (c) 1996-2018 by Steven A. Jacobson, all rights reserved.
+ * Copyright (c) 1996-2023 by Steven A. Jacobson, all rights reserved.
  */
 
 /*
@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.96 2020/03/09 06:51:38 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.98 2023/01/19 03:09:55 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -1264,7 +1264,8 @@ void
 usage(int argc, char **argv)
 {
     printf("\nusage: %s [-?hbIrRV] [-d <debug flags>] [-D <max depth>]\n"
-        "           [-i <start index>] [-s <silent level>] -fF <file name>\n",
+        "           [-i <start index>] [-s <silent level>]\n"
+        "           -fF <input file name> [-oO <output file name>]\n",
         argv[0]);
     printf(
         "  -b:		try breadth-first search if needed\n"
@@ -1389,7 +1390,7 @@ input_values(int argc, char **argv, game_t *game)
     /*
      * Note:  Can hack puzzle name into program for testing like the following:
      */
-    //fname = "./puzzles/d6.txt";
+    //fname = "./puzzles1/d6.txt";
 
     /*
      * Command line options handling
