@@ -1,0 +1,5 @@
+#!/bin/sh
+
+time  -a -o time.out ../sudoku -f ../puzzles1/un-400.txt -s 2 -r -D 6 > \
+	nohup_test.out
+
