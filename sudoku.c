@@ -128,7 +128,7 @@
  *
  */
 
-static const char rcsid[]="$Id: sudoku.c,v 1.98 2023/01/19 03:09:55 stevej Exp $";
+static const char rcsid[]="$Id: sudoku.c,v 1.99 2023/02/12 00:15:57 stevej Exp $";
 
 #include <unistd.h>
 #include <stdio.h>
@@ -158,7 +158,7 @@ static int get_relevant_cells(board_t *board, uint4 input_row, uint4 input_col,
 static uint4 get_lowest_cell_value(cell_t *cell);
 void board_set_pointers(board_t *board, game_t *game, board_t *prev,
                         board_t *next);
-bool cell_value_set(cell_t *cell, uint4 value);
+bool cell_value_is_set(cell_t *cell, uint4 value);
 
 
 /*
@@ -219,7 +219,7 @@ test_sanity_of_dimension_never_solved(cell_t *test_cells[DIMENSION_SIZE])
 
                 /* Fail if cell1 value is contained in cell2 */
                 if ((cell1 != cell2) && (1 == cell2->num_possible_values) &&
-                  (cell_value_set(cell2, cell1_val))) {
+                  (cell_value_is_set(cell2, cell1_val))) {
                     return (FALSE);
                 }
             }
@@ -263,7 +263,7 @@ test_sanity_of_dimension_part_solved(cell_t *test_cells[DIMENSION_SIZE])
                 cell2 = test_cells[cell_index2];
 
                 /* Fail if cell1 value is contained in cell2 */
-                if ((cell1 != cell2) && (cell_value_set(cell2, cell1_val))) {
+                if ((cell1 != cell2) && (cell_value_is_set(cell2, cell1_val))) {
                     return (FALSE);
                 }
             }
@@ -942,7 +942,7 @@ clear_cell_value(cell_t *cell, uint4 value)
  * Return TRUE if "value" is set in the cell, else return FALSE.
  */
 bool
-cell_value_set(cell_t *cell, uint4 value)
+cell_value_is_set(cell_t *cell, uint4 value)
 {
     if (cell->values[value - 1]) {
         return (TRUE);
@@ -3146,8 +3146,8 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
 
     /*
      * For every undetermined cell,
-     *   For every possible value in that undetermined cell,
-     *     - set that value in that cell
+     *   For every possible value in the undetermined cell,
+     *     - set that value in the undetermined cell
      *     - run the iterative algorithms over the modified board
      *       - if puzzle solved, return SOLVED_SUCCESS
      *       - if puzzle not solved, continue
@@ -3171,7 +3171,7 @@ breadth_first_1lr_process_board(game_t *game, board_t *board,
          * Undetermined cell found:  Process it!
          */
         for (value=1; value <= DIMENSION_SIZE; value++) {
-            if (cell_value_set(cell, value)) {
+            if (cell_value_is_set(cell, value)) {
                 /*
                  * Value in undetermined cell found:  Process it!
                  */
@@ -3325,8 +3325,8 @@ depth_first_process_board(game_t *game, board_t *board_orig,
     uint4    df_tot_changes = 0;
     bool     solved = FALSE;;
     bool     sane = FALSE;;
-    uint4    df_cells_tested = 0;
-    uint4    df_values_tested = 0;
+    uint8    df_cells_tested = 0;
+    uint8    df_values_tested = 0;
     bfnuc_state_t  bfnuc_state;
     enum recurse_return_status  df_status = rrs_initial_error;;
 
@@ -3394,7 +3394,7 @@ depth_first_process_board(game_t *game, board_t *board_orig,
          * Undetermined cell found:  Process it!
          */
         for (value=1; value <= DIMENSION_SIZE; value++) {
-            if (cell_value_set(cell, value)) {
+            if (cell_value_is_set(cell, value)) {
                 /*
                  * Value in undetermined cell found:  Process it!
                  */
@@ -3516,7 +3516,7 @@ search_complete:
             (solved ? "solved" : "not solved"),
             (sane ? ", sane" : ", not sane"));
         printf("    DFS:  Iter %u; "
-            "Chg:  Row %u col %u sq %u tot %u cell %u val %u\n",
+            "Chg:  Row %u col %u sq %u tot %u cell %llu val %llu\n",
             df_iterations, df_tot_num_row_changes, df_tot_num_col_changes,
             df_tot_num_square_changes, df_tot_changes,
             df_cells_tested, df_values_tested);
@@ -3729,7 +3729,8 @@ main(int argc, char **argv)
                 bfs_num_cells_tested, bfs_num_values_tested);
         }
         if (do_dfs) {
-            printf("        dfs:  cells %u vals %u rec %u bt %u ns %u mrl %u\n",
+            printf("        dfs:  cells %llu vals %llu rec %llu bt %llu ns %llu"
+                " mrl %u\n",
                 game->recurse_stats->sum_cells_tested, 
                 game->recurse_stats->sum_values_tested,
                 game->recurse_stats->tot_num_recursions,

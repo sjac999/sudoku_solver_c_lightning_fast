@@ -3,7 +3,7 @@
  *
  * Steve Jacobson, 01/05/06
  *
- * Copyright (c) 1996-2018 by Steven A. Jacobson, all rights reserved.
+ * Copyright (c) 1996-2023 by Steven A. Jacobson, all rights reserved.
  */
 
 #define TRUE                       1
@@ -97,9 +97,6 @@ enum recurse_return_status {
     rrs_initial_error = 4,
 };
 
-
-//#ifdef REMOVED
-
 /*
  * Structure containing debug print information
  */
@@ -110,8 +107,6 @@ typedef struct dprint_ {
     uint4    silent_level;
 } dprint_t;
 
-//#endif  /* REMOVED */
-
 /*
  * Structure containing stats collected during recursion.
  */
@@ -121,12 +116,12 @@ typedef struct recurse_stats_ {
     uint4     sum_num_square_changes;
     uint4     sum_num_tot_changes;
     uint4     iterations;
-    uint4     sum_cells_tested;
-    uint4     sum_values_tested;
     uint4     max_recursion_levels;
-    uint4     tot_num_recursions;
-    uint4     tot_num_backtracks;
-    uint4     tot_num_not_sane;
+    uint8     sum_cells_tested;
+    uint8     sum_values_tested;
+    uint8     tot_num_recursions;
+    uint8     tot_num_backtracks;
+    uint8     tot_num_not_sane;
 } recurse_stats_t;
 
 /*
